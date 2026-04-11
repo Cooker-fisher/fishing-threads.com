@@ -2,6 +2,11 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from scripts.extractors.daiwa_electric_pipeline import run_pipeline
 
@@ -28,14 +33,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_arg_parser().parse_args()
-    outputs = run_pipeline(
+    result = run_pipeline(
         index_json_path=Path(args.index_json),
         crawl_date=args.crawl_date,
         out_dir=Path(args.out_dir),
     )
-    print(f"generated={len(outputs)}")
-    for output in outputs:
+    print(f"generated={len(result.outputs)}")
+    for output in result.outputs:
         print(output)
+    print(f"failed={len(result.failed_urls)}")
+    for url in result.failed_urls:
+        reason = result.failed_reasons.get(url, "unknown error")
+        print(f"FAILED_URL {url} :: {reason}")
 
 
 if __name__ == "__main__":
