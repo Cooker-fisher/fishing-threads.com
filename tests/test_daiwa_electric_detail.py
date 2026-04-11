@@ -51,12 +51,13 @@ class DaiwaElectricDetailExtractorTests(unittest.TestCase):
     def test_extract_title_and_price(self):
         soup = parse_html(SAMPLE_HTML)
         result = extract_title_and_price(soup)
-        self.assertEqual(result["title"], "レオブリッツ")
+        self.assertEqual(result["title"], "レオブリッツ 400J")
         self.assertEqual(result["price_raw"], "84,400円")
 
     def test_split_model_fields(self):
         fields = split_model_fields("レオブリッツ 400J")
         self.assertEqual(fields["series_name"], "レオブリッツ")
+        self.assertEqual(fields["model_name"], "レオブリッツ 400J")
         self.assertEqual(fields["variant_name"], "400J")
 
     def test_extract_main_description(self):
@@ -80,7 +81,7 @@ class DaiwaElectricDetailExtractorTests(unittest.TestCase):
         payload = build_product_raw(
             source_url="https://www.daiwa.com/jp/product/9806jt3",
             crawl_date="2026-04-11",
-            title_fields={"series_name": "レオブリッツ", "model_name": "レオブリッツ", "variant_name": "400J"},
+            title_fields={"series_name": "レオブリッツ", "model_name": "レオブリッツ 400J", "variant_name": "400J"},
             price_raw="84,400円",
             category_raw=["リール", "電動リール"],
             description_raw=["軽さは感度"],
