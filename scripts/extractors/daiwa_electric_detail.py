@@ -3,11 +3,10 @@ from __future__ import annotations
 import argparse
 import json
 import re
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
-
-from bs4 import BeautifulSoup, Tag
 
 from scripts.extractors.daiwa_electric_index import fetch_html, normalize_ws
 
@@ -24,12 +23,38 @@ ASCII_PRODUCT_PATTERN = re.compile(r"^[A-Z0-9\-\s]+$")
 VARIANT_PATTERN = re.compile(r"([A-Z]*\d+[A-Z\-]*)$")
 
 
-def parse_html(html: str) -> BeautifulSoup:
-    return BeautifulSoup(html, "html.parser")
+class MiniSoup(HTMLParser):
+    def __init__(self, html: str):
+        super().__init__()
+        self.raw_html = html
+        self.tokens: list[tuple[str, dict[str, str], str]] = []
+        self._tag_stack: list[tuple[str, dict[str, str]]] = []
+        self.feed(html)
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self._tag_stack.append((tag, {k: v or "" for k, v in attrs}))
+
+    def handle_endtag(self, tag: str) -> None:
+        if self._tag_stack:
+            self._tag_stack.pop()
+
+    def handle_data(self, data: str) -> None:
+        text = normalize_ws(data)
+        if not text:
+            return
+        if self._tag_stack:
+            tag, attrs = self._tag_stack[-1]
+        else:
+            tag, attrs = "text", {}
+        self.tokens.append((tag, attrs, text))
 
 
-def extract_breadcrumb_categories(soup: BeautifulSoup) -> list[str]:
-    text = normalize_ws(soup.get_text(" ", strip=True))
+def parse_html(html: str) -> MiniSoup:
+    return MiniSoup(html)
+
+
+def extract_breadcrumb_categories(soup: MiniSoup) -> list[str]:
+    text = normalize_ws(" ".join(t[2] for t in soup.tokens))
     categories: list[str] = []
     for candidate in ["リール", "電動リール"]:
         if candidate in text and candidate not in categories:
@@ -44,24 +69,25 @@ def _normalize_title(text: str) -> str:
     parts = text.split(" ")
     jp_parts: list[str] = []
     for part in parts:
-        if ASCII_PRODUCT_PATTERN.fullmatch(part):
+        if ASCII_PRODUCT_PATTERN.fullmatch(part) and not re.search(r"\d", part):
             break
         jp_parts.append(part)
     normalized = normalize_ws(" ".join(jp_parts)) if jp_parts else text
     return normalized
 
 
-def _find_product_title(soup: BeautifulSoup) -> str:
-    for tag in soup.find_all(["h1", "h2"]):
-        text = normalize_ws(tag.get_text(" ", strip=True))
+def _find_product_title(soup: MiniSoup) -> str:
+    for tag, _, text in soup.tokens:
+        if tag not in {"h1", "h2"}:
+            continue
         if text and not STOP_PATTERN.search(text):
             return _normalize_title(text)
     raise ValueError("商品名が見つかりません")
 
 
-def extract_title_and_price(soup: BeautifulSoup) -> dict[str, str | None]:
+def extract_title_and_price(soup: MiniSoup) -> dict[str, str | None]:
     title = _find_product_title(soup)
-    page_text = normalize_ws(soup.get_text(" ", strip=True))
+    page_text = normalize_ws(" ".join(t[2] for t in soup.tokens))
     match = PRICE_PATTERN.search(page_text)
     return {"title": title, "price_raw": normalize_ws(match.group(1)) if match else None}
 
@@ -76,16 +102,13 @@ def split_model_fields(title: str) -> dict[str, str | None]:
     return {"series_name": title, "model_name": title, "variant_name": None}
 
 
-def extract_main_description(soup: BeautifulSoup) -> list[str]:
+def extract_main_description(soup: MiniSoup) -> list[str]:
     texts: list[str] = []
     seen: set[str] = set()
-    for tag in soup.find_all(["p", "div"]):
-        text = normalize_ws(tag.get_text(" ", strip=True))
-        if not text:
+    for tag, _, text in soup.tokens:
+        if tag not in {"p", "div"}:
             continue
-        if NOTE_PATTERN.search(text):
-            continue
-        if PRICE_PATTERN.search(text):
+        if NOTE_PATTERN.search(text) or PRICE_PATTERN.search(text):
             continue
         if STOP_PATTERN.search(text):
             break
@@ -99,13 +122,10 @@ def extract_main_description(soup: BeautifulSoup) -> list[str]:
     return texts
 
 
-def extract_notes(soup: BeautifulSoup) -> list[str]:
+def extract_notes(soup: MiniSoup) -> list[str]:
     notes: list[str] = []
     seen: set[str] = set()
-    for text_node in soup.find_all(string=True):
-        text = normalize_ws(str(text_node))
-        if not text:
-            continue
+    for _, _, text in soup.tokens:
         if NOTE_PATTERN.search(text) or "注意" in text:
             if text not in seen:
                 seen.add(text)
@@ -113,16 +133,12 @@ def extract_notes(soup: BeautifulSoup) -> list[str]:
     return notes
 
 
-def extract_main_images(soup: BeautifulSoup, base_url: str) -> list[str]:
+def extract_main_images(soup: MiniSoup, base_url: str) -> list[str]:
+    srcs = re.findall(r'<img[^>]*src=["\']([^"\']+)', soup.raw_html, flags=re.IGNORECASE)
     images: list[str] = []
     seen: set[str] = set()
-    for image in soup.find_all("img", src=True):
-        src = image.get("src") or ""
-        alt = normalize_ws(image.get("alt", ""))
+    for src in srcs:
         full = urljoin(base_url, src)
-        text = f"{alt} {src}".lower()
-        if any(bad in text for bad in ["logo", "icon", "banner", "youtube", "movie"]):
-            continue
         if full not in seen:
             seen.add(full)
             images.append(full)
@@ -143,30 +159,14 @@ def build_product_slug(fields: dict[str, str | None]) -> str:
 def build_product_raw(source_url: str, crawl_date: str, title_fields: dict[str, str | None], price_raw: str | None, category_raw: list[str], description_raw: list[str], notes_raw: list[str], image_urls: list[str]) -> dict[str, Any]:
     slug = build_product_slug(title_fields)
     return {
-        "id": f"{DEFAULT_MAKER}-{slug}",
-        "maker": DEFAULT_MAKER,
-        "brand": DEFAULT_BRAND,
-        "source_site": DEFAULT_SOURCE_SITE,
-        "source_url": source_url,
-        "source_hash": None,
-        "crawl_date": crawl_date,
-        "extractor_version": DEFAULT_EXTRACTOR_VERSION,
-        "schema_version": DEFAULT_SCHEMA_VERSION,
-        "category_raw": category_raw or ["リール", "電動リール"],
-        "category_mechanism": DEFAULT_CATEGORY_MECHANISM,
-        "category_usage": [],
-        "water_type": "unknown",
-        "series_name": title_fields.get("series_name"),
-        "model_name": title_fields.get("model_name"),
-        "variant_name": title_fields.get("variant_name"),
-        "price_raw": price_raw,
-        "sku_raw": None,
-        "jan_upc_raw": None,
-        "status_raw": None,
-        "description_raw": description_raw,
-        "notes_raw": notes_raw,
-        "image_urls": image_urls,
-        "spec_rows_raw": [],
+        "id": f"{DEFAULT_MAKER}-{slug}", "maker": DEFAULT_MAKER, "brand": DEFAULT_BRAND,
+        "source_site": DEFAULT_SOURCE_SITE, "source_url": source_url, "source_hash": None,
+        "crawl_date": crawl_date, "extractor_version": DEFAULT_EXTRACTOR_VERSION, "schema_version": DEFAULT_SCHEMA_VERSION,
+        "category_raw": category_raw or ["リール", "電動リール"], "category_mechanism": DEFAULT_CATEGORY_MECHANISM,
+        "category_usage": [], "water_type": "unknown", "series_name": title_fields.get("series_name"),
+        "model_name": title_fields.get("model_name"), "variant_name": title_fields.get("variant_name"),
+        "price_raw": price_raw, "sku_raw": None, "jan_upc_raw": None, "status_raw": None,
+        "description_raw": description_raw, "notes_raw": notes_raw, "image_urls": image_urls, "spec_rows_raw": [],
         "subtype": {"reel_type": "electric", "electric_raw": {}, "spinning_raw": None, "bait_raw": None, "conventional_raw": None, "lever_brake_raw": None, "fly_raw": None},
         "extra": {"technology_labels": [], "movie_links": [], "manual_links": [], "compatibility_links": [], "awards": [], "campaign_tags": [], "feature_section_titles": [], "hero_copy": []},
     }
