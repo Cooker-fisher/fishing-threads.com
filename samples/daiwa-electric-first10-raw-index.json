@@ -1,0 +1,21 @@
+{
+  "source_site": "daiwa_official",
+  "source_url": "https://www.daiwa.com/jp/product/productlist?category1=%E3%83%AA%E3%83%BC%E3%83%AB",
+  "crawl_date": "2026-04-11",
+  "maker": "daiwa",
+  "category_raw": ["リール", "電動リール"],
+  "category_mechanism": "electric",
+  "page_no": 1,
+  "items": [
+    {"series_name_or_model_name": "シーボーグ G1800M-RJ", "price_raw": "374,500円", "source_url": "https://www.daiwa.com/jp/product/adbrdfh", "image_url": null, "badge_raw": null, "status_raw": null},
+    {"series_name_or_model_name": "シーボーグ G1200M", "price_raw": "215,900円", "source_url": "https://www.daiwa.com/jp/product/7nij5bb", "image_url": null, "badge_raw": null, "status_raw": null},
+    {"series_name_or_model_name": "シーボーグ G800MJ", "price_raw": "193,000円", "source_url": "https://www.daiwa.com/jp/product/98xk7yt", "image_url": null, "badge_raw": null, "status_raw": null},
+    {"series_name_or_model_name": "シーボーグ 500MJ-AT", "price_raw": "159,000円", "source_url": "https://www.daiwa.com/jp/product/iwb64su", "image_url": null, "badge_raw": null, "status_raw": null},
+    {"series_name_or_model_name": "シーボーグ 600MJ", "price_raw": "142,000円", "source_url": "https://www.daiwa.com/jp/product/o09lxm4", "image_url": null, "badge_raw": null, "status_raw": null},
+    {"series_name_or_model_name": "シーボーグ 500MJ", "price_raw": "137,000円", "source_url": "https://www.daiwa.com/jp/product/2rgwb7s", "image_url": null, "badge_raw": null, "status_raw": null},
+    {"series_name_or_model_name": "シーボーグ G400J", "price_raw": "123,000円", "source_url": "https://www.daiwa.com/jp/product/some-g400j", "image_url": null, "badge_raw": null, "status_raw": null},
+    {"series_name_or_model_name": "シーパワー 1200", "price_raw": "122,000円", "source_url": "https://www.daiwa.com/jp/product/some-seapower1200", "image_url": null, "badge_raw": null, "status_raw": null},
+    {"series_name_or_model_name": "レオブリッツ 400J", "price_raw": "84,400円", "source_url": "https://www.daiwa.com/jp/product/9806jt3", "image_url": null, "badge_raw": null, "status_raw": null},
+    {"series_name_or_model_name": "レオブリッツ 300J", "price_raw": "83,100円", "source_url": "https://www.daiwa.com/jp/product/some-300j", "image_url": null, "badge_raw": null, "status_raw": null}
+  ]
+}
