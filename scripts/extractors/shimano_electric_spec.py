@@ -84,36 +84,50 @@ def _is_value(line: str) -> bool:
     return True
 
 
-def extract_spec_labels(section: Tag) -> list[str]:
+def _extract_content_lines(section: Tag) -> list[str]:
     nodes = _iter_until_related(section)
     lines = _collect_lines(nodes)
+    return [line for line in lines if not SPEC_SECTION_PATTERN.search(line)]
+
+
+def _split_label_value_blocks(lines: list[str]) -> tuple[list[str], list[str]]:
     labels: list[str] = []
-    seen: set[str] = set()
+    values: list[str] = []
+    started_values = False
+
     for line in lines:
-        if _is_label(line) and line not in seen:
-            labels.append(line)
-            seen.add(line)
+        if NOTE_PATTERN.search(line):
+            break
+        if not started_values:
+            if _is_label(line):
+                labels.append(line)
+                continue
+            if labels and _is_value(line):
+                started_values = True
+                values.append(line)
+                continue
+            continue
+
+        if _is_value(line):
+            values.append(line)
+            if labels and len(values) >= len(labels):
+                break
+
+    return labels, values
+
+
+def extract_spec_labels(section: Tag) -> list[str]:
+    lines = _extract_content_lines(section)
+    labels, _ = _split_label_value_blocks(lines)
     return labels
 
 
 def extract_spec_values(section: Tag, labels: list[str]) -> list[str]:
-    nodes = _iter_until_related(section)
-    lines = _collect_lines(nodes)
-    values: list[str] = []
-    started = False
-    for line in lines:
-        if line in labels:
-            started = True
-            continue
-        if not started:
-            continue
-        if NOTE_PATTERN.search(line):
-            break
-        if _is_value(line):
-            values.append(line)
-    if len(values) > len(labels):
-        values = values[: len(labels)]
-    return values
+    lines = _extract_content_lines(section)
+    parsed_labels, values = _split_label_value_blocks(lines)
+    if labels and parsed_labels[: len(labels)] == labels:
+        return values[: len(labels)]
+    return values[: len(parsed_labels)]
 
 
 def build_spec_rows(labels: list[str], values: list[str]) -> list[dict[str, Any]]:
