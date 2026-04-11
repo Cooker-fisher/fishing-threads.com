@@ -1,0 +1,32 @@
+# Generated / temporary files
+/tmp/
+/logs/
+
+# Large / heavy generated assets
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.sqlite
+*.db
+*.bin
+*.pdf
+*.zip
+*.tar
+*.gz
+
+# HTML snapshots
+samples/html/*
+!samples/html/.gitkeep
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node / Python common
+node_modules/
+__pycache__/
+*.pyc
+.env
