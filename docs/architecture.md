@@ -1,55 +1,55 @@
-# Architecture
+# アーキテクチャ
 
-## What Tsuri-threads is
-Tsuri-threads is a connected database site for fishing gear selection.
+## Tsuri-threads とは何か
+Tsuri-threads は、釣り具選定のための接続型データベースサイトです。
 
-The main value is not product pages by themselves.
-The main value is the ability to move through **relations** and finally reach a **setup**.
+価値の中心は、商品ページ単体ではありません。
+**relation（関係）** をたどり、最終的に **setup（組み合わせ）** に到達できることが主価値です。
 
-## Product principle
-- Main actor is not just `entity`
-- Main actor is `relation / setup`
-- Early focus is electric reels first
-- Expansion should stay schema-safe
+## プロダクト原則
+- 主役は `entity` 単体ではない
+- 主役は `relation / setup`
+- 初期フォーカスは電動リール
+- 将来拡張しても schema が壊れないことを優先する
 
-## Data layers
-The project is designed in 3 layers:
+## データ層
+このプロジェクトは3層で設計する。
 - `raw`
 - `normalized`
 - `derived`
 
 ### raw
-Keep source facts as close to the original as possible.
-Do not normalize too early.
+元情報にできるだけ近い事実を保持する。
+早すぎる正規化はしない。
 
 ### normalized
-Convert raw facts into shared comparable structure.
+raw を、比較や横断利用に耐える共通構造へ変換する。
 
 ### derived
-Build relation views, setup candidates, and user-facing derived outputs.
+relation 表示、setup候補、ユーザー向け表示用データを生成する。
 
-## Canonical source of truth
-GitHub is the canonical source of truth.
+## 正本
+GitHub を正本とする。
 
-## UI core
-Main UI concept:
-- horizontal axis = reel size / band
-- vertical axis = fish species, sinker load, and other conditions
+## UIの核
+UIの中核概念は次の通り。
+- 横軸 = 番手 / バンド
+- 縦軸 = 魚種、錘負荷、その他条件
 
-This is condition-first navigation.
+つまり、条件から入る導線を中心にする。
 
-## Main flow
-- fish / condition
-- required reel band
-- maker comparison
-- upper/lower model comparison
+## 基本導線
+- 魚種 / 条件
+- 必要番手帯
+- メーカー比較
+- 上位下位比較
 - setup
 
-## Design constraint
-The system must stay maintainable when expanding later to more reel types and eventually more tackle categories.
+## 設計制約
+将来、リールの他カテゴリへ拡張しても維持できる構造にする必要がある。
 
-That means:
-- separate raw / normalized / derived
-- separate list-page data and product-page data
-- keep shared schema before maker-specific logic
-- do not let UI decisions pollute raw design
+そのために守ること：
+- raw / normalized / derived を分離する
+- 一覧ページデータと商品ページデータを分ける
+- メーカー個別ロジックより先に共通schemaを置く
+- UI都合で raw 設計を汚さない

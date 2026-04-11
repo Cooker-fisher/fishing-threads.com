@@ -1,82 +1,83 @@
-# Raw Extraction Design
+# Raw抽出設計
 
-## Purpose
-Tsuri-threads is a connected database site for fishing gear selection.
-The main value is not standalone entity pages, but relation / setup.
-This document fixes the raw extraction design for reel data so the project can scale without becoming messy.
+## 目的
+Tsuri-threads は、釣り具選定のための接続型データベースサイトです。
+価値の中心は、単体の商品ページではなく relation / setup にあります。
+この文書は、リール情報の raw 抽出設計を固定し、将来拡張しても壊れにくい土台を作るためのものです。
 
-## Core Product Direction
-- Tsuri-threads is a connected DB site for tackle selection.
-- Main focus is relation / setup, not just entity pages.
-- Initial scope is electric reels first.
-- Canonical source of truth is GitHub.
-- Data layers are:
+## プロダクト前提
+- Tsuri-threads は接続型DBサイトである
+- 主役は entity 単体ではなく relation / setup
+- 初期スコープは電動リール
+- 正本は GitHub
+- データ層は以下の3つ
   - `raw`
   - `normalized`
   - `derived`
-- Main UI direction:
-  - horizontal axis = reel size / band
-  - vertical axis = fish species, sinker load, and other conditions
-- User flow:
-  - fish / condition
-  - required reel band
-  - maker comparison
-  - upper/lower model comparison
+- UIの核は
+  - 横軸 = 番手 / バンド
+  - 縦軸 = 魚種、錘負荷、その他条件
+- 基本導線は
+  - 魚種 / 条件
+  - 必要番手帯
+  - メーカー比較
+  - 上位下位比較
   - setup
 
-## Raw Extraction Policy
-### Source of truth
-- `raw JSON` is the working source of truth.
-- HTML is **not** saved by default.
-- Save HTML only when:
-  - extraction fails
-  - structure changed
-  - representative samples are needed
+## raw抽出の基本方針
+### 正本
+- 実務上の正本は `raw JSON`
+- HTMLは通常保存しない
+- HTMLを保存するのは次の場合のみ
+  - 抽出失敗
+  - 構造変更検知
+  - 代表サンプル保存
 
-### Why
-- Raw JSON is lighter and easier to diff.
-- HTML-only operation is possible but too slow in practice.
-- Full HTML storage for all pages is unnecessary.
+### この方針の理由
+- raw JSON の方が軽く、差分比較しやすい
+- HTMLだけで運用することは可能だが、実務では重い
+- 全ページHTML保存は不要
 
-## Extraction Strategy
-### Deterministic first
-Use CSS / DOM extraction for factual fields.
-Use LLM only for interpretation fields.
+## 抽出戦略
+### deterministic優先
+事実項目は CSS / DOM 抽出で取る。
+LLMは解釈項目だけに使う。
 
-### CSS / DOM extraction handles
-- title
-- price
-- product code / sku
+### CSS / DOM で取る項目
+- タイトル
+- 価格
+- 商品コード / sku
 - JAN / UPC
-- spec table rows
-- notes
-- image URLs
-- detail page URLs from index pages
+- スペック表
+- 注記
+- 画像URL
+- 一覧から詳細へのURL
 
-### LLM handles only interpretation
+### LLMで扱う項目
 - `category_mechanism`
 - `category_usage`
 - `water_type`
-- feature section meaning
-- technology labels when needed
-- repair of broken / irregular spec structure only when necessary
+- 特徴見出しの意味づけ
+- 必要時の technology labels 整理
+- 不規則なスペック表の補修
 
-### Rule
-Facts by CSS. Interpretation by LLM.
-Do not send entire page bodies to LLM by default.
+### 原則
+- 事実はCSSで取る
+- 解釈はLLMに任せる
+- ページ本文丸ごとを毎回LLMに投げない
 
-## Page Unit Separation
-### Index raw
-Save as **1 page = 1 JSON**.
+## ページ単位の分離
+### 一覧raw
+**1ページ = 1 JSON** で保存する。
 
-Path example:
+例：
 `raw/index/shimano/electric/001.json`
 
-Role:
-- collect candidates broadly
-- do not over-interpret
+役割：
+- 候補を広く集める
+- 深読みしすぎない
 
-Typical fields:
+典型項目：
 - maker
 - category_raw
 - series_name_or_model_name
@@ -86,27 +87,27 @@ Typical fields:
 - badge_raw
 - status_raw
 
-### Product raw
-Save as **1 product = 1 JSON**.
+### 商品raw
+**1商品 = 1 JSON** で保存する。
 
-Path example:
+例：
 `raw/products/shimano/force-master-200.json`
 
-Role:
-- store deep factual product data
-- become the base for normalization
+役割：
+- 商品事実を深く保存する
+- normalized の元データにする
 
-## Shared Reel Raw Schema
-Raw schema should be built as:
+## 共通リールraw schema
+raw schema は以下で組む。
 - common core
 - subtype core
 - extra
 - ignore
 
-This must be shared across Shimano / Daiwa / Abu first.
-Major Craft / Megabass are later durability tests, not initial schema drivers.
+最初は Shimano / Daiwa / Abu の共通構造を優先する。
+Major Craft / Megabass は初期schema決定要因ではなく、後から耐久テストに使う。
 
-### Common core
+### common core
 - `maker`
 - `brand`
 - `source_site`
@@ -128,9 +129,9 @@ Major Craft / Megabass are later durability tests, not initial schema drivers.
 - `notes_raw`
 - `image_urls`
 
-### Subtype core
-Keep subtype raw blocks for reel-specific data.
-Examples:
+### subtype core
+リール種別ごとの raw ブロックを持つ。
+例：
 - `electric_raw`
 - `spinning_raw`
 - `bait_raw`
@@ -138,8 +139,8 @@ Examples:
 - `lever_brake_raw`
 - `fly_raw`
 
-### Extra
-Useful but non-critical:
+### extra
+取れれば便利だが、なくても致命的ではないもの。
 - `technology_labels`
 - `movie_links`
 - `manual_links`
@@ -149,49 +150,49 @@ Useful but non-critical:
 - `feature_section_titles`
 - `hero_copy`
 
-### Ignore
-Do not store:
-- breadcrumbs
-- news
-- SNS blocks
-- related articles
-- promo banners
-- corporate navigation
-- store navigation
-- list ordering itself
+### ignore
+保存しないもの。
+- パンくず
+- ニュース
+- SNSブロック
+- 関連記事
+- 販促バナー
+- 企業導線
+- 店舗導線
+- 一覧の並び順そのもの
 
-## Spec Storage Rule
-Do **not** normalize spec tables too early.
-Store spec rows as raw rows first.
+## spec保存ルール
+スペック表は早すぎる正規化をしない。
+まず raw 行として保存する。
 
-Recommended raw shape:
+推奨形：
 
 ```json
 [
   {
-    "section": "basic spec",
-    "label": "Gear ratio",
+    "section": "基本スペック",
+    "label": "ギア比",
     "value": "5.1",
     "unit": null,
     "note": null,
-    "source_text": "Gear ratio 5.1"
+    "source_text": "ギア比 5.1"
   }
 ]
 ```
 
-Key rule:
-- preserve original labels and values first
-- normalize later
+原則：
+- まず元ラベルと元値を保持する
+- 正規化は後で行う
 
-## Category Design
-Keep category in 3 axes.
+## category設計
+categoryは3軸で持つ。
 
-### 1. Raw category
-Keep site-native labels as-is.
+### 1. raw category
+サイト側の表記をそのまま保持する。
 - `category_raw`
 
-### 2. Mechanism
-Unified mechanism axis:
+### 2. mechanism
+統一的な機構分類。
 - `electric`
 - `spinning`
 - `bait`
@@ -200,8 +201,9 @@ Unified mechanism axis:
 - `fly`
 - `unknown`
 
-### 3. Usage
-Usage tags such as:
+### 3. usage
+用途タグ。
+例：
 - boat
 - offshore
 - shore
@@ -211,34 +213,34 @@ Usage tags such as:
 - wakasagi
 - rockfish
 
-### 4. Water type
+### 4. water type
 - `salt`
 - `fresh`
 - `both`
 - `unknown`
 
-## File Naming Rule
-### Index raw
+## ファイル命名規則
+### 一覧raw
 `raw/index/{maker}/{category_mechanism}/{page_no}.json`
 
-Example:
+例：
 `raw/index/shimano/electric/001.json`
 
-### Product raw
+### 商品raw
 `raw/products/{maker}/{product_slug}.json`
 
-Example:
+例：
 `raw/products/shimano/force-master-200.json`
 
-### Product slug rules
-- lowercase only
-- use `-` only as separator
-- include reel size / hand / HG / PG / XG differences
-- do not use series name alone
-- append source-based fallback ID if needed
+### product slug のルール
+- 小文字のみ
+- 区切りは `-` のみ
+- 番手 / 左右 / HG / PG / XG の差分は必ず入れる
+- series名だけでは命名しない
+- 必要なら source ベースの補助IDを付ける
 
-## Required Meta Fields
-Every product JSON should include at least:
+## 必須メタ項目
+各商品JSONには最低限これを入れる。
 - `id`
 - `maker`
 - `brand`
@@ -249,63 +251,62 @@ Every product JSON should include at least:
 - `extractor_version`
 - `schema_version`
 
-Important:
-- `source_hash` separates page changes from extractor changes
-- `extractor_version` lets us track extraction logic updates
+重要点：
+- `source_hash` があるとページ変化と抽出器変化を分けられる
+- `extractor_version` があると抽出ロジック更新を追跡できる
 
-## Diff Detection Rule
-Detect changes at product page level.
+## 差分検知ルール
+商品ページ単位で差分を見る。
 
-Compare at least:
+最低限比較する項目：
 - `source_hash`
-- core fields
+- core項目
 - `spec_rows_raw`
 - `price_raw`
 - `status_raw`
 
-### Change levels
+### change level
 #### High
-- `status_raw` changed
-- `sku_raw` / `jan_upc_raw` changed
-- `spec_rows_raw` row add/remove/value changed
-- `category_mechanism` changed
-- setup-critical capacity / drag / line data changed
+- `status_raw` 変更
+- `sku_raw` / `jan_upc_raw` 変更
+- `spec_rows_raw` の行追加 / 削除 / 値変更
+- `category_mechanism` 変更
+- setupに効く容量 / ドラグ / 糸巻量の変更
 
 #### Medium
-- `price_raw` changed
-- major `description_raw` change
-- image replacement
-- feature heading change
+- `price_raw` 変更
+- `description_raw` の大きな変更
+- 画像差し替え
+- 特徴見出しの変更
 
 #### Low
-- note wording tweaks
-- ordering changes
-- wording normalization
-- promo copy changes
+- 注記の軽微修正
+- 順番変更
+- 表記揺れ修正
+- 販促文変更
 
-### Diff storage example
+### diff保存例
 `diff/{maker}/{product_slug}/{date}.json`
 
-## Images Policy
-### Default
-- do not store product images inside the repo
-- store image metadata only
-- keep source image URLs first
+## 画像方針
+### 基本方針
+- 商品画像の実体は repo に保存しない
+- 画像メタ情報だけ持つ
+- まずは source image URL を保持する
 
-### Why
-GitHub capacity problems are caused more by:
-- images
-- full HTML archives
-- repeated CSV output commits
-- binaries
-than by raw JSON itself.
+### この方針の理由
+GitHub容量を圧迫しやすいのは raw JSON ではなく、主に次のもの。
+- 画像
+- HTML全件保存
+- CSV再生成物の大量コミット
+- バイナリ
 
-### Current phase
-- keep `source_image_url`
-- later, if needed, add lightweight `thumb` and `detail` assets outside repo
-- do not introduce paid storage by default
+### 現段階
+- `source_image_url` を保持する
+- 必要になったら軽量 `thumb` / `detail` を repo外で管理する
+- 最初から有料ストレージを前提にしない
 
-## Repo Layout v1
+## repo構成 v1
 ```text
 repo/
 ├─ app/
@@ -318,34 +319,34 @@ repo/
 │  └─ images/
 ├─ normalized/
 ├─ derived/
-├─ tmp/          # gitignored
-├─ logs/         # gitignored
+├─ tmp/          # gitignore対象
+├─ logs/         # gitignore対象
 └─ samples/
-   └─ html/      # representative samples only
+   └─ html/      # 代表サンプルのみ
 ```
 
-Rules:
-- `raw` = operational source of truth
-- `normalized` = regenerable
-- `derived` = regenerable
-- `tmp` and `logs` are ignored
-- sample HTML only, not full archive
+ルール：
+- `raw` = 実務上の正本
+- `normalized` = 再生成可能
+- `derived` = 再生成可能
+- `tmp` と `logs` はコミットしない
+- HTMLは代表サンプルだけ持つ
 
-## Operational Choice Fixed
-Adopt **A-lightweight operation**.
+## 採用した運用方針
+**A軽量運用** を採用する。
 
-Meaning:
-- raw JSON saved by default
-- HTML only when needed
-- deterministic extraction first
-- GitHub stores code / schema / raw JSON / minimal normalized data
-- heavy generated assets are ignored
+意味：
+- 基本は raw JSON 保存
+- HTMLは必要時のみ保存
+- deterministic抽出を優先
+- GitHubには code / schema / raw JSON / 最小限のnormalized を置く
+- 重い生成物は無視する
 
-## Immediate Next Step
-Create:
-1. list-page raw JSON sample
-2. product-page raw JSON sample
-3. extractor prompt split into:
-   - index page extraction
-   - detail page extraction
-4. first extractor implementation for Shimano electric reel pages
+## 次の作業
+次に作るもの：
+1. 一覧ページ raw JSONサンプル
+2. 商品ページ raw JSONサンプル
+3. 抽出プロンプトを以下に分割
+   - 一覧ページ用
+   - 詳細ページ用
+4. Shimano電動リールの最初の extractor 実装
