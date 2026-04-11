@@ -1,0 +1,27 @@
+{
+  "source_site": "shimano_official",
+  "source_url": "https://fish.shimano.com/ja-JP/product/reel/electricaccessories.html",
+  "crawl_date": "2026-04-11",
+  "maker": "shimano",
+  "category_raw": ["リール", "電動"],
+  "category_mechanism": "electric",
+  "page_no": 1,
+  "items": [
+    {
+      "series_name_or_model_name": "ForceMaster 200",
+      "price_raw": "100,000円",
+      "source_url": "https://example.com/products/force-master-200",
+      "image_url": "https://example.com/images/force-master-200.jpg",
+      "badge_raw": null,
+      "status_raw": "current"
+    },
+    {
+      "series_name_or_model_name": "BeastMaster MD 3000",
+      "price_raw": "OPEN",
+      "source_url": "https://example.com/products/beast-master-md-3000",
+      "image_url": "https://example.com/images/beast-master-md-3000.jpg",
+      "badge_raw": "NEW",
+      "status_raw": "current"
+    }
+  ]
+}
