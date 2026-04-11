@@ -20,6 +20,8 @@ DEFAULT_EXTRACTOR_VERSION = "v1"
 PRICE_PATTERN = re.compile(r"([\d,]+円)")
 NOTE_PATTERN = re.compile(r"^(※|\*|注記)")
 STOP_PATTERN = re.compile(r"(ダイワテクノロジー|製品詳細|製品スペック|スペック|RELATED|VIDEO)")
+ASCII_PRODUCT_PATTERN = re.compile(r"^[A-Z0-9\-\s]+$")
+VARIANT_PATTERN = re.compile(r"([A-Z]*\d+[A-Z\-]*)$")
 
 
 def parse_html(html: str) -> BeautifulSoup:
@@ -35,11 +37,25 @@ def extract_breadcrumb_categories(soup: BeautifulSoup) -> list[str]:
     return categories
 
 
+def _normalize_title(text: str) -> str:
+    text = normalize_ws(text)
+    if not text:
+        return text
+    parts = text.split(" ")
+    jp_parts: list[str] = []
+    for part in parts:
+        if ASCII_PRODUCT_PATTERN.fullmatch(part):
+            break
+        jp_parts.append(part)
+    normalized = normalize_ws(" ".join(jp_parts)) if jp_parts else text
+    return normalized
+
+
 def _find_product_title(soup: BeautifulSoup) -> str:
     for tag in soup.find_all(["h1", "h2"]):
         text = normalize_ws(tag.get_text(" ", strip=True))
         if text and not STOP_PATTERN.search(text):
-            return text.split(" ")[0] if " " in text and re.search(r"[A-Z]", text) else text
+            return _normalize_title(text)
     raise ValueError("商品名が見つかりません")
 
 
@@ -51,11 +67,12 @@ def extract_title_and_price(soup: BeautifulSoup) -> dict[str, str | None]:
 
 
 def split_model_fields(title: str) -> dict[str, str | None]:
-    match = re.match(r"^(.*?)(?:\s+|\-)?([A-Z]*\d+[A-Z\-]*)$", title)
+    title = normalize_ws(title)
+    match = VARIANT_PATTERN.search(title)
     if match:
-        base = normalize_ws(match.group(1))
-        variant = normalize_ws(match.group(2))
-        return {"series_name": base, "model_name": base, "variant_name": variant}
+        variant = normalize_ws(match.group(1))
+        base = normalize_ws(title[: match.start(1)]).rstrip("-").strip()
+        return {"series_name": base or title, "model_name": title, "variant_name": variant}
     return {"series_name": title, "model_name": title, "variant_name": None}
 
 
