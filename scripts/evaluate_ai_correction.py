@@ -6,11 +6,11 @@ Goal: decide whether AI correction of derived fields adds meaningful value
 
 Approach
 --------
-* Baseline  : normalize_from_spec_rows() with exact-match LABEL_DICT
-* AI (mock) : same pipeline + extended label aliases + description fallback.
-              This simulates the maximum gain a real LLM could achieve
-              *without* hallucinating.  It never overwrites a field the
-              baseline already extracted.
+* Baseline  : normalize_all() — expanded LABEL_DICT (v2) + description
+              fallback for spool_capacity_text.
+* AI (mock) : same pipeline + any remaining extended aliases.
+              Simulates max gain a real LLM could add without hallucination.
+              Never overwrites a field the baseline already extracted.
 
 Each field comparison is classified as:
   improvement  — baseline=None, ai=<value>     (field recovered)
@@ -20,21 +20,29 @@ Each field comparison is classified as:
 
 Output
 ------
-  normalized/products/electric/daiwa/<id>_baseline.json
-  normalized/products/electric/daiwa/<id>_ai.json
+  normalized/products/electric/<maker>/<id>_baseline.json
+  normalized/products/electric/<maker>/<id>_ai.json
   docs/ai-correction-evaluation-results.json
   stdout: summary table
 
 Usage
 -----
+  # both DAIWA + SHIMANO (default):
   python scripts/evaluate_ai_correction.py
-  python scripts/evaluate_ai_correction.py --index-json samples/daiwa-electric-first10-raw-index-clean.json --out-dir .
+
+  # single seed file:
+  python scripts/evaluate_ai_correction.py \\
+    --index-json samples/daiwa-electric-first10-raw-index-clean.json
+
+  # explicit multi-seed:
+  python scripts/evaluate_ai_correction.py \\
+    --index-json samples/daiwa-electric-first10-raw-index-clean.json \\
+                 samples/shimano-electric-first5-raw-index-clean.json
 """
 from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -57,7 +65,7 @@ from scripts.extractors.daiwa_electric_spec import (                    # noqa: 
     extract_spec_rows,
 )
 from scripts.normalizers.electric_reel_minimal import (                 # noqa: E402
-    normalize_from_spec_rows,
+    normalize_all,
     DERIVED_FIELD_NAMES,
 )
 
@@ -78,52 +86,24 @@ TARGET_FIELDS: list[str] = [
 # AI mock corrector
 # ---------------------------------------------------------------------------
 
-# Extended label aliases — covers known label variants found in the wild.
-# A real LLM would handle arbitrary Japanese paraphrases; this mock covers
-# the most common patterns so the evaluation gives a realistic upper bound.
+# Remaining aliases not yet in the baseline LABEL_DICT.
+# After the v2 dictionary expansion these are very few — they represent
+# genuinely rare or ambiguous label variants that we deliberately kept
+# out of the baseline to avoid false-positive matches.
 AI_LABEL_ALIASES: dict[str, str] = {
-    # weight
-    "自重(g)":           "weight_g",
-    "自重":              "weight_g",
-    "重量(g)":           "weight_g",
-    "本体重量(g)":       "weight_g",
-    "標準自重（ｇ）":    "weight_g",   # full-width parens / kana unit
-    # gear ratio
-    "ギア比":            "gear_ratio",
-    # max drag
-    "最大ドラグ力(kg)":  "max_drag_kg",
-    "最大ドラグ(kg)":    "max_drag_kg",
-    "ドラグ力(kg)":      "max_drag_kg",
-    "最大ドラグ力":      "max_drag_kg",
-    # handle length
-    "ハンドル長(mm)":    "handle_length_mm",
-    "ハンドル長さ(mm)":  "handle_length_mm",
-    "ハンドル全長(mm)":  "handle_length_mm",
-    "ハンドル長":        "handle_length_mm",
-    # bearings
-    "ベアリング数(BB/RB)": "bearing_desc",
-    "ベアリング(BB/RB)":   "bearing_desc",
-    "ベアリング数":        "bearing_desc",
-    "ベアリング":          "bearing_desc",
-    # spool capacity
-    "巻糸量(PE号-m)":    "spool_capacity_text",
-    "糸巻量(PE号-m)":    "spool_capacity_text",
-    "糸巻量":            "spool_capacity_text",
-    "巻糸量":            "spool_capacity_text",
-    "ラインキャパシティ": "spool_capacity_text",
-    # electric power
-    "対応電源":          "electric_power_desc",
-    "使用電源":          "electric_power_desc",
-    "電源":              "electric_power_desc",
-    "対応バッテリー":    "electric_power_desc",
+    # All LABEL_DICT entries are already in baseline; these are extras
+    # a real LLM might handle that we chose not to hard-code.
+    "ハンドル長":              "handle_length_mm",  # no unit at all (high ambiguity)
+    "ベアリング":              "bearing_desc",       # single-word (high ambiguity)
+    "ラインキャパシティ":      "spool_capacity_text",  # English-derived
+    "対応バッテリー":          "electric_power_desc",  # already in LABEL_DICT but kept for symmetry
+    "本体重量(g)":            "weight_g",            # very rare alternate
 }
 
-# Regex to extract spool capacity from description text when the spec table
-# has no 巻糸量 row at all.
-_SPOOL_FROM_DESC_RE = re.compile(
-    r"PE\s*\d+(?:\.\d+)?号\s*[\-/]\s*\d+(?:\s*m)?"
-    r"|PE\s*\d+(?:\.\d+)?\s*\-\s*\d+",
-    re.IGNORECASE,
+# Import the same description regex the baseline already uses so the AI mock
+# does not double-count the one case it handles.
+from scripts.normalizers.electric_reel_minimal import (                 # noqa: E402
+    _SPOOL_FROM_DESC_RE,
 )
 
 
@@ -136,14 +116,15 @@ def run_ai_correction(
     Simulate AI correction on top of *baseline*.
 
     Rules (in order):
-    1. Extended alias matching — fill in fields the strict dict missed.
-    2. Description fallback — recover spool_capacity_text from free text.
+    1. Extended alias matching for the few labels still outside LABEL_DICT.
+    2. Description fallback — already applied by baseline normalize_all(),
+       so this step is effectively a no-op after the v2 expansion.
 
     Never overwrites a field that baseline already populated.
     """
     corrected = dict(baseline)
 
-    # Step 1: extended label alias matching
+    # Step 1: remaining alias matching
     for row in spec_rows_raw:
         label = (row.get("label") or "").strip()
         field = AI_LABEL_ALIASES.get(label)
@@ -152,7 +133,7 @@ def run_ai_correction(
             if value:
                 corrected[field] = str(value).strip()
 
-    # Step 2: description fallback for spool_capacity_text
+    # Step 2: description fallback (baseline already handles this in v2)
     if corrected.get("spool_capacity_text") is None:
         desc_text = " ".join(description_raw or [])
         m = _SPOOL_FROM_DESC_RE.search(desc_text)
@@ -173,14 +154,6 @@ def classify_change(
     baseline_val: str | None,
     ai_val: str | None,
 ) -> str:
-    """
-    Classify the difference between baseline and AI-corrected values.
-
-    improvement : baseline=None  → ai=<value>   (new information added)
-    no_change   : same value (including both None)
-    regression  : baseline=<value> → ai=None    (information lost)
-    mutation    : both non-None but different    (manual review needed)
-    """
     if baseline_val == ai_val:
         return "no_change"
     if baseline_val is None and ai_val is not None:
@@ -211,10 +184,19 @@ def compare_outputs(
 # Pipeline helper: fetch HTML → merge detail + spec into one raw dict
 # ---------------------------------------------------------------------------
 
+def _detect_maker_from_url(url: str) -> str:
+    """Infer product maker from URL/path hint."""
+    url_lower = url.lower()
+    if "shimano" in url_lower:
+        return "shimano"
+    return "daiwa"
+
+
 def build_raw_with_spec(url: str, crawl_date: str = "2026-04-12") -> dict:
     """
     Fetch (or load from local path) an HTML page, run detail + spec
     extraction, and return a merged raw dict with spec_rows_raw populated.
+    Maker is inferred from the URL so SHIMANO fixtures get the right brand.
     """
     fetched = fetch_html(url)
     html = fetched.html
@@ -236,6 +218,14 @@ def build_raw_with_spec(url: str, crawl_date: str = "2026-04-12") -> dict:
     spec_soup = parse_spec_html(html)
     raw["spec_rows_raw"] = extract_spec_rows(spec_soup)
 
+    # correct maker/brand/id for non-DAIWA fixtures
+    maker = _detect_maker_from_url(url)
+    if maker != "daiwa" and raw.get("id", "").startswith("daiwa-"):
+        slug_part = raw["id"][len("daiwa-"):]
+        raw["id"] = f"{maker}-{slug_part}"
+        raw["maker"] = maker
+        raw["brand"] = maker
+
     return raw
 
 
@@ -244,14 +234,18 @@ def build_raw_with_spec(url: str, crawl_date: str = "2026-04-12") -> dict:
 # ---------------------------------------------------------------------------
 
 def run_evaluation(
-    index_json: str = "samples/daiwa-electric-first10-raw-index-clean.json",
+    index_jsons: list[str],
     out_dir: str = ".",
     crawl_date: str = "2026-04-12",
 ) -> None:
     root = Path(out_dir)
-    index_path = Path(index_json)
-    seed = json.loads(index_path.read_text(encoding="utf-8"))
-    urls = [item["url"] if isinstance(item, dict) else item for item in seed]
+
+    # collect URLs from all seed files
+    urls: list[str] = []
+    for index_json in index_jsons:
+        index_path = Path(index_json)
+        seed = json.loads(index_path.read_text(encoding="utf-8"))
+        urls += [item["url"] if isinstance(item, dict) else item for item in seed]
 
     all_comparisons: list[dict] = []
 
@@ -263,17 +257,18 @@ def run_evaluation(
             continue
 
         product_id = raw["id"]
+        maker = raw.get("maker", "unknown")
         spec_rows = raw.get("spec_rows_raw") or []
         desc = raw.get("description_raw") or []
 
-        baseline = normalize_from_spec_rows(spec_rows)
+        baseline = normalize_all(spec_rows, desc)
         ai_corrected = run_ai_correction(spec_rows, desc, baseline)
 
         comparison = compare_outputs(product_id, baseline, ai_corrected)
         all_comparisons.append(comparison)
 
         # save per-product normalized files
-        b_dir = root / "normalized" / "products" / "electric" / "daiwa"
+        b_dir = root / "normalized" / "products" / "electric" / maker
         b_dir.mkdir(parents=True, exist_ok=True)
 
         (b_dir / f"{product_id}_baseline.json").write_text(
@@ -323,10 +318,7 @@ def run_evaluation(
     print(f"\nTotal products evaluated : {len(all_comparisons)}")
     print(f"Total field×product pairs: {len(all_comparisons) * len(TARGET_FIELDS)}")
 
-    # headline improvement rate
-    total_impr = sum(
-        stats[f]["improvement"] for f in TARGET_FIELDS
-    )
+    total_impr = sum(stats[f]["improvement"] for f in TARGET_FIELDS)
     total_pairs = len(all_comparisons) * len(TARGET_FIELDS)
     pct = (total_impr / total_pairs * 100) if total_pairs else 0
     print(f"AI improvement rate      : {total_impr}/{total_pairs} = {pct:.1f}%")
@@ -340,8 +332,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="AI補正評価スクリプト")
     p.add_argument(
         "--index-json",
-        default="samples/daiwa-electric-first10-raw-index-clean.json",
-        help="seed JSON with product URLs",
+        nargs="+",
+        default=[
+            "samples/daiwa-electric-first10-raw-index-clean.json",
+            "samples/shimano-electric-first5-raw-index-clean.json",
+        ],
+        help="one or more seed JSON files with product URLs",
     )
     p.add_argument("--out-dir", default=".", help="output root directory")
     p.add_argument("--crawl-date", default="2026-04-12")

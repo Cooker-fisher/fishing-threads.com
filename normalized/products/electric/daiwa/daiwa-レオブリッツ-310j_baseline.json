@@ -4,7 +4,7 @@
   "gear_ratio": "3.6",
   "max_drag_kg": "12",
   "handle_length_mm": "135",
-  "bearing_desc": null,
+  "bearing_desc": "8/1",
   "spool_capacity_text": "8-350/10-250",
   "electric_power_desc": "12V/24V"
 }

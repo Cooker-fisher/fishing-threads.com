@@ -1,0 +1,10 @@
+{
+  "id": "shimano-フォースマスター-3001",
+  "weight_g": "470",
+  "gear_ratio": "3.5",
+  "max_drag_kg": "10",
+  "handle_length_mm": "135",
+  "bearing_desc": "8+1",
+  "spool_capacity_text": "4-400/5-320",
+  "electric_power_desc": "12V/24V"
+}

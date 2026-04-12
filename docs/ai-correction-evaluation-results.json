@@ -1,5 +1,5 @@
 {
-  "evaluated_products": 10,
+  "evaluated_products": 15,
   "target_fields": [
     "weight_g",
     "gear_ratio",
@@ -11,44 +11,44 @@
   ],
   "per_field_stats": {
     "weight_g": {
-      "improvement": 1,
-      "no_change": 9,
+      "improvement": 0,
+      "no_change": 15,
       "regression": 0,
       "mutation": 0
     },
     "gear_ratio": {
       "improvement": 0,
-      "no_change": 10,
+      "no_change": 15,
       "regression": 0,
       "mutation": 0
     },
     "max_drag_kg": {
-      "improvement": 1,
-      "no_change": 9,
+      "improvement": 0,
+      "no_change": 15,
       "regression": 0,
       "mutation": 0
     },
     "handle_length_mm": {
-      "improvement": 1,
-      "no_change": 9,
+      "improvement": 0,
+      "no_change": 15,
       "regression": 0,
       "mutation": 0
     },
     "bearing_desc": {
-      "improvement": 1,
-      "no_change": 9,
+      "improvement": 0,
+      "no_change": 15,
       "regression": 0,
       "mutation": 0
     },
     "spool_capacity_text": {
-      "improvement": 2,
-      "no_change": 8,
+      "improvement": 0,
+      "no_change": 15,
       "regression": 0,
       "mutation": 0
     },
     "electric_power_desc": {
-      "improvement": 1,
-      "no_change": 9,
+      "improvement": 0,
+      "no_change": 15,
       "regression": 0,
       "mutation": 0
     }
@@ -138,9 +138,9 @@
       "product_id": "daiwa-レオブリッツ-303j",
       "fields": {
         "weight_g": {
-          "baseline": null,
+          "baseline": "525",
           "ai_corrected": "525",
-          "category": "improvement"
+          "category": "no_change"
         },
         "gear_ratio": {
           "baseline": "3.6",
@@ -193,9 +193,9 @@
           "category": "no_change"
         },
         "handle_length_mm": {
-          "baseline": null,
+          "baseline": "145",
           "ai_corrected": "145",
-          "category": "improvement"
+          "category": "no_change"
         },
         "bearing_desc": {
           "baseline": "6/1",
@@ -243,9 +243,9 @@
           "category": "no_change"
         },
         "spool_capacity_text": {
-          "baseline": null,
+          "baseline": "5-300/6-230",
           "ai_corrected": "5-300/6-230",
-          "category": "improvement"
+          "category": "no_change"
         },
         "electric_power_desc": {
           "baseline": "12V/24V",
@@ -268,9 +268,9 @@
           "category": "no_change"
         },
         "max_drag_kg": {
-          "baseline": null,
+          "baseline": "15",
           "ai_corrected": "15",
-          "category": "improvement"
+          "category": "no_change"
         },
         "handle_length_mm": {
           "baseline": "135",
@@ -363,9 +363,9 @@
           "category": "no_change"
         },
         "spool_capacity_text": {
-          "baseline": null,
+          "baseline": "PE3号-300m",
           "ai_corrected": "PE3号-300m",
-          "category": "improvement"
+          "category": "no_change"
         },
         "electric_power_desc": {
           "baseline": "12V/24V",
@@ -408,9 +408,9 @@
           "category": "no_change"
         },
         "electric_power_desc": {
-          "baseline": null,
+          "baseline": "12V/24V",
           "ai_corrected": "12V/24V",
-          "category": "improvement"
+          "category": "no_change"
         }
       }
     },
@@ -438,13 +438,213 @@
           "category": "no_change"
         },
         "bearing_desc": {
-          "baseline": null,
+          "baseline": "8/1",
           "ai_corrected": "8/1",
-          "category": "improvement"
+          "category": "no_change"
         },
         "spool_capacity_text": {
           "baseline": "8-350/10-250",
           "ai_corrected": "8-350/10-250",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "shimano-フォースマスター-3000",
+      "fields": {
+        "weight_g": {
+          "baseline": "465",
+          "ai_corrected": "465",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.5",
+          "ai_corrected": "3.5",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "10",
+          "ai_corrected": "10",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "130",
+          "ai_corrected": "130",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8+1",
+          "ai_corrected": "8+1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "4-350/5-280",
+          "ai_corrected": "4-350/5-280",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "shimano-フォースマスター-3001",
+      "fields": {
+        "weight_g": {
+          "baseline": "470",
+          "ai_corrected": "470",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.5",
+          "ai_corrected": "3.5",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "10",
+          "ai_corrected": "10",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "135",
+          "ai_corrected": "135",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8+1",
+          "ai_corrected": "8+1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "4-400/5-320",
+          "ai_corrected": "4-400/5-320",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "shimano-フォースマスター-3002",
+      "fields": {
+        "weight_g": {
+          "baseline": "475",
+          "ai_corrected": "475",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.8",
+          "ai_corrected": "3.8",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "12",
+          "ai_corrected": "12",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "135",
+          "ai_corrected": "135",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8+1",
+          "ai_corrected": "8+1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "5-300/6-240",
+          "ai_corrected": "5-300/6-240",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "shimano-フォースマスター-3003",
+      "fields": {
+        "weight_g": {
+          "baseline": "480",
+          "ai_corrected": "480",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.8",
+          "ai_corrected": "3.8",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "12",
+          "ai_corrected": "12",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "130",
+          "ai_corrected": "130",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8+1",
+          "ai_corrected": "8+1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "5-350/6-280",
+          "ai_corrected": "5-350/6-280",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "shimano-フォースマスター-3004",
+      "fields": {
+        "weight_g": {
+          "baseline": "485",
+          "ai_corrected": "485",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.5",
+          "ai_corrected": "3.5",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "10",
+          "ai_corrected": "10",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "130",
+          "ai_corrected": "130",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8+1",
+          "ai_corrected": "8+1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "6-300/8-230",
+          "ai_corrected": "6-300/8-230",
           "category": "no_change"
         },
         "electric_power_desc": {

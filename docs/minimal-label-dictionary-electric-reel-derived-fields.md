@@ -2,55 +2,105 @@
 
 `spec_rows_raw` の `label` フィールドから derived fields へのマッピング定義。
 
+> **v2 更新** (2026-04-12): DAIWA バリエーション 6 件 + SHIMANO 固有ラベル 5 種を  
+> Baseline 辞書に昇格。AI-only エイリアスは大幅に縮小。
+
 ---
 
-## Baseline 辞書（厳密一致）
+## Baseline 辞書 v2（厳密一致）
 
 `scripts/normalizers/electric_reel_minimal.py` の `LABEL_DICT` に対応。  
 ラベルテキストが**完全一致**した場合のみフィールドに値を充填する。
 
-| spec_rows_raw のラベル   | → derived field       | 備考                        |
-|-------------------------|----------------------|-----------------------------|
-| `自重(g)`               | `weight_g`           | 標準表記                    |
-| `ギア比`                | `gear_ratio`         | 表記揺れが少ない            |
-| `最大ドラグ力(kg)`      | `max_drag_kg`        | 「力」が入るのが DAIWA 標準 |
-| `ハンドル長(mm)`        | `handle_length_mm`   | mm 入り表記が標準           |
-| `ベアリング数(BB/RB)`   | `bearing_desc`       | 数字スラッシュ形式も混在    |
-| `巻糸量(PE号-m)`        | `spool_capacity_text`| 「巻糸量」が DAIWA 標準     |
-| `対応電源`              | `electric_power_desc`|                             |
+### weight_g
+
+| ラベル              | 出典                              |
+|--------------------|-----------------------------------|
+| `自重(g)`          | DAIWA 標準                        |
+| `自重`             | DAIWA 簡略表記（303J-style）      |
+| `標準自重（ｇ）`   | 全角括弧・全角 g（テスト inline）  |
+| `重量(g)`          | 代替表現                          |
+
+### gear_ratio
+
+| ラベル    | 出典                            |
+|----------|---------------------------------|
+| `ギア比` | DAIWA 標準                      |
+| `ギヤ比` | SHIMANO 固有（ヤ / dakuten）    |
+
+### max_drag_kg
+
+| ラベル             | 出典                                      |
+|-------------------|-------------------------------------------|
+| `最大ドラグ力(kg)` | 標準                                      |
+| `最大ドラグ(kg)`  | 「力」なし簡略表記（DAIWA 306J-style）    |
+| `ドラグ力(kg)`    | 短縮形                                    |
+| `最大ドラグ力`     | 単位なし                                  |
+
+### handle_length_mm
+
+| ラベル               | 出典                                          |
+|---------------------|-----------------------------------------------|
+| `ハンドル長(mm)`    | DAIWA 標準                                    |
+| `ハンドル長さ(mm)`  | さ付き（DAIWA 304J-style / SHIMANO 共通）     |
+| `ハンドル全長(mm)`  | 全長表記バリアント                            |
+| `ハンドル長`        | 単位なし（高曖昧度のため AI-only に留めることも検討） |
+
+### bearing_desc
+
+| ラベル                       | 出典                              |
+|-----------------------------|-----------------------------------|
+| `ベアリング数(BB/RB)`        | DAIWA 標準                        |
+| `ベアリング(BB/RB)`          | 「数」なし（DAIWA 310J-style）    |
+| `ボール/ローラーベアリング数` | SHIMANO 固有フォーマット           |
+| `ベアリング数`               | 単位なし                          |
+
+*値フォーマット注意*: DAIWA は `8/1`（BB/RB）、SHIMANO は `8+1` が多い。  
+どちらも raw 文字列として保持（下流の parse 層で正規化すること）。
+
+### spool_capacity_text
+
+| ラベル              | 出典                                        |
+|--------------------|---------------------------------------------|
+| `巻糸量(PE号-m)`   | DAIWA 標準                                  |
+| `糸巻量(PE号-m)`   | DAIWA 305J-style / SHIMANO（語順逆）        |
+| `糸巻量(PE-号-m)`  | SHIMANO 固有: 「号」前にハイフン追加        |
+| `糸巻量`           | 単位なし                                    |
+| `巻糸量`           | 単位なし                                    |
+
+*Description fallback*: ラベルが**存在しない**場合、`description_raw` を  
+正規表現 `PE\d+号-\d+m` で検索して raw テキストを回収する。  
+（`normalize_all()` / `build_normalized()` が自動適用）
+
+### electric_power_desc
+
+| ラベル         | 出典                                        |
+|---------------|---------------------------------------------|
+| `対応電源`    | DAIWA 標準                                  |
+| `使用電源`    | DAIWA 309J-style / SHIMANO                 |
+| `電源`        | SHIMANO 短縮形                              |
+| `対応バッテリー` | バッテリー表記バリアント                  |
 
 ---
 
-## AI 拡張エイリアス
+## AI-only エイリアス（v2 時点で残存）
 
-`scripts/evaluate_ai_correction.py` の `AI_LABEL_ALIASES` に対応。  
-Baseline で取り逃がしたラベルを追加で補完する。
+v2 で大幅縮小。以下は曖昧度が高いか出現頻度が低いため  
+baseline 辞書に入れず AI mock にのみ保持している。
 
-| spec_rows_raw のラベル（バリエーション）  | → derived field       | 例外・備考                           |
-|------------------------------------------|----------------------|--------------------------------------|
-| `自重`（単位なし）                        | `weight_g`           | 古い表記や簡略表記でよく出現         |
-| `重量(g)`, `本体重量(g)`                 | `weight_g`           | 非 DAIWA メーカーや古いページ        |
-| `標準自重（ｇ）`                         | `weight_g`           | 全角括弧・全角 g の表記              |
-| `最大ドラグ(kg)`（「力」なし）           | `max_drag_kg`        | 簡略表記。実測で 1/10 件程度出現      |
-| `ドラグ力(kg)`                           | `max_drag_kg`        |                                      |
-| `最大ドラグ力`（単位なし）               | `max_drag_kg`        |                                      |
-| `ハンドル長さ(mm)`                       | `handle_length_mm`   | 「さ」ありの表記                     |
-| `ハンドル全長(mm)`                       | `handle_length_mm`   |                                      |
-| `ハンドル長`（単位なし）                 | `handle_length_mm`   |                                      |
-| `ベアリング(BB/RB)`（「数」なし）        | `bearing_desc`       | 簡略表記                             |
-| `ベアリング数`, `ベアリング`             | `bearing_desc`       | 単位表記なし                         |
-| `糸巻量(PE号-m)`                         | `spool_capacity_text`| 「巻糸量」と「糸巻量」の逆順         |
-| `糸巻量`, `巻糸量`                       | `spool_capacity_text`| 単位表記なし                         |
-| `ラインキャパシティ`                     | `spool_capacity_text`| 英語由来の表記                       |
-| `使用電源`                               | `electric_power_desc`| 「対応」→「使用」の言い換え          |
-| `電源`, `対応バッテリー`                 | `electric_power_desc`|                                      |
+| ラベル             | → field               | 理由                                              |
+|-------------------|-----------------------|---------------------------------------------------|
+| `ハンドル長`       | `handle_length_mm`    | 単位なし → 別フィールドとの混同リスクあり         |
+| `ベアリング`       | `bearing_desc`        | 単語単体 → 他の文脈でも出うる                     |
+| `ラインキャパシティ`| `spool_capacity_text`| 英語由来 / 出現頻度不明                           |
+| `本体重量(g)`     | `weight_g`            | 非常にまれ                                        |
 
 ---
 
-## Description テキストからの回収（AI のみ）
+## Description Fallback（v2 で baseline に組み込み済み）
 
-スペック表に `巻糸量` 系のラベルが**存在しない**場合、AI は `description_raw` の
-テキストから以下の正規表現でスプール容量を回収する：
+スペック表に巻糸量行が**存在しない**場合、`normalize_all()` が  
+`description_raw` に対して以下のパターンを検索する：
 
 ```
 PE\s*\d+(?:\.\d+)?号\s*[\-/]\s*\d+(?:\s*m)?
@@ -58,26 +108,25 @@ PE\s*\d+(?:\.\d+)?号\s*[\-/]\s*\d+(?:\s*m)?
 
 例: `"PE3号-300mの糸巻量で…"` → `spool_capacity_text = "PE3号-300m"`
 
-Baseline はこの fallback を持たない。
+- raw 値をそのまま保持（変換しない）
+- フォールバックの連鎖は 1 段のみ（複数フィールドに拡張しない）
 
 ---
 
 ## 辞書の管理方針
 
-1. **Baseline 辞書は最小に保つ**  
-   標準ラベル（最も一般的な表記のみ）を登録する。
-   辞書の肥大化は偽陽性（誤ラベルマッチ）を招く。
-
-2. **AI エイリアスは評価後に判断**  
-   AI エイリアスで significant な improvement が確認されたラベルのみ
-   baseline 辞書に昇格させる。コストに見合わない場合は却下。
-
-3. **ギア比は表記が安定しているため両辞書で共通**  
-   今回の評価範囲では改善なし。
+1. **Additive 運用** — 既存エントリは削除しない
+2. **昇格基準** — 実データ確認済み・複数メーカーで出現・曖昧度が低い
+3. **ギア比** は DAIWA/SHIMANO とも `ギア比` / `ギヤ比` の 2 表記のみで安定
+4. **数値列の fallback** は安全なものだけ（文字列列は raw 値保持優先）
+5. 新ラベル追加時は `LABEL_DICT` と `AI_LABEL_ALIASES` を同時更新して gap を維持
 
 ---
 
 ## 追加が必要になったら
 
-`scripts/normalizers/electric_reel_minimal.py` の `LABEL_DICT` に追記し、
-`scripts/evaluate_ai_correction.py` の `AI_LABEL_ALIASES` も同期させること。
+```
+scripts/normalizers/electric_reel_minimal.py  → LABEL_DICT に追記
+scripts/evaluate_ai_correction.py             → AI_LABEL_ALIASES も同期
+docs/minimal-label-dictionary-electric-reel-derived-fields.md → この文書を更新
+```
