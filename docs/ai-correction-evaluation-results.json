@@ -1,0 +1,458 @@
+{
+  "evaluated_products": 10,
+  "target_fields": [
+    "weight_g",
+    "gear_ratio",
+    "max_drag_kg",
+    "handle_length_mm",
+    "bearing_desc",
+    "spool_capacity_text",
+    "electric_power_desc"
+  ],
+  "per_field_stats": {
+    "weight_g": {
+      "improvement": 1,
+      "no_change": 9,
+      "regression": 0,
+      "mutation": 0
+    },
+    "gear_ratio": {
+      "improvement": 0,
+      "no_change": 10,
+      "regression": 0,
+      "mutation": 0
+    },
+    "max_drag_kg": {
+      "improvement": 1,
+      "no_change": 9,
+      "regression": 0,
+      "mutation": 0
+    },
+    "handle_length_mm": {
+      "improvement": 1,
+      "no_change": 9,
+      "regression": 0,
+      "mutation": 0
+    },
+    "bearing_desc": {
+      "improvement": 1,
+      "no_change": 9,
+      "regression": 0,
+      "mutation": 0
+    },
+    "spool_capacity_text": {
+      "improvement": 2,
+      "no_change": 8,
+      "regression": 0,
+      "mutation": 0
+    },
+    "electric_power_desc": {
+      "improvement": 1,
+      "no_change": 9,
+      "regression": 0,
+      "mutation": 0
+    }
+  },
+  "per_product": [
+    {
+      "product_id": "daiwa-レオブリッツ-301j",
+      "fields": {
+        "weight_g": {
+          "baseline": "490",
+          "ai_corrected": "490",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.6",
+          "ai_corrected": "3.6",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "10",
+          "ai_corrected": "10",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "130",
+          "ai_corrected": "130",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8/1",
+          "ai_corrected": "8/1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "3-300/4-230",
+          "ai_corrected": "3-300/4-230",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "daiwa-レオブリッツ-302j",
+      "fields": {
+        "weight_g": {
+          "baseline": "510",
+          "ai_corrected": "510",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.6",
+          "ai_corrected": "3.6",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "12",
+          "ai_corrected": "12",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "130",
+          "ai_corrected": "130",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8/1",
+          "ai_corrected": "8/1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "3-400/4-300",
+          "ai_corrected": "3-400/4-300",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "daiwa-レオブリッツ-303j",
+      "fields": {
+        "weight_g": {
+          "baseline": null,
+          "ai_corrected": "525",
+          "category": "improvement"
+        },
+        "gear_ratio": {
+          "baseline": "3.6",
+          "ai_corrected": "3.6",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "10",
+          "ai_corrected": "10",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "130",
+          "ai_corrected": "130",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8/1",
+          "ai_corrected": "8/1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "4-300/5-230",
+          "ai_corrected": "4-300/5-230",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "daiwa-レオブリッツ-304j",
+      "fields": {
+        "weight_g": {
+          "baseline": "540",
+          "ai_corrected": "540",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.2",
+          "ai_corrected": "3.2",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "15",
+          "ai_corrected": "15",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": null,
+          "ai_corrected": "145",
+          "category": "improvement"
+        },
+        "bearing_desc": {
+          "baseline": "6/1",
+          "ai_corrected": "6/1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "4-350/5-270",
+          "ai_corrected": "4-350/5-270",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "daiwa-レオブリッツ-305j",
+      "fields": {
+        "weight_g": {
+          "baseline": "555",
+          "ai_corrected": "555",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.6",
+          "ai_corrected": "3.6",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "12",
+          "ai_corrected": "12",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "130",
+          "ai_corrected": "130",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8/1",
+          "ai_corrected": "8/1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": null,
+          "ai_corrected": "5-300/6-230",
+          "category": "improvement"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "daiwa-レオブリッツ-306j",
+      "fields": {
+        "weight_g": {
+          "baseline": "570",
+          "ai_corrected": "570",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.6",
+          "ai_corrected": "3.6",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": null,
+          "ai_corrected": "15",
+          "category": "improvement"
+        },
+        "handle_length_mm": {
+          "baseline": "135",
+          "ai_corrected": "135",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8/1",
+          "ai_corrected": "8/1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "5-350/6-270",
+          "ai_corrected": "5-350/6-270",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "daiwa-レオブリッツ-307j",
+      "fields": {
+        "weight_g": {
+          "baseline": "485",
+          "ai_corrected": "485",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "4.1",
+          "ai_corrected": "4.1",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "10",
+          "ai_corrected": "10",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "130",
+          "ai_corrected": "130",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8BB+1RB",
+          "ai_corrected": "8BB+1RB",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "6-300/8-200",
+          "ai_corrected": "6-300/8-200",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "daiwa-レオブリッツ-308j",
+      "fields": {
+        "weight_g": {
+          "baseline": "525",
+          "ai_corrected": "525",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.6",
+          "ai_corrected": "3.6",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "10",
+          "ai_corrected": "10",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "130",
+          "ai_corrected": "130",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8/1",
+          "ai_corrected": "8/1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": null,
+          "ai_corrected": "PE3号-300m",
+          "category": "improvement"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    },
+    {
+      "product_id": "daiwa-レオブリッツ-309j",
+      "fields": {
+        "weight_g": {
+          "baseline": "495",
+          "ai_corrected": "495",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.6",
+          "ai_corrected": "3.6",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "10",
+          "ai_corrected": "10",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "130",
+          "ai_corrected": "130",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": "8/1",
+          "ai_corrected": "8/1",
+          "category": "no_change"
+        },
+        "spool_capacity_text": {
+          "baseline": "8-300/10-200",
+          "ai_corrected": "8-300/10-200",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": null,
+          "ai_corrected": "12V/24V",
+          "category": "improvement"
+        }
+      }
+    },
+    {
+      "product_id": "daiwa-レオブリッツ-310j",
+      "fields": {
+        "weight_g": {
+          "baseline": "510",
+          "ai_corrected": "510",
+          "category": "no_change"
+        },
+        "gear_ratio": {
+          "baseline": "3.6",
+          "ai_corrected": "3.6",
+          "category": "no_change"
+        },
+        "max_drag_kg": {
+          "baseline": "12",
+          "ai_corrected": "12",
+          "category": "no_change"
+        },
+        "handle_length_mm": {
+          "baseline": "135",
+          "ai_corrected": "135",
+          "category": "no_change"
+        },
+        "bearing_desc": {
+          "baseline": null,
+          "ai_corrected": "8/1",
+          "category": "improvement"
+        },
+        "spool_capacity_text": {
+          "baseline": "8-350/10-250",
+          "ai_corrected": "8-350/10-250",
+          "category": "no_change"
+        },
+        "electric_power_desc": {
+          "baseline": "12V/24V",
+          "ai_corrected": "12V/24V",
+          "category": "no_change"
+        }
+      }
+    }
+  ]
+}
