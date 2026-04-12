@@ -1,0 +1,290 @@
+{
+  "generated_date": "2026-04-12",
+  "source_file": "daiwa-electric-index-20260412-112237.json",
+  "total_items_in_source": 24,
+  "accessories_skipped": [
+    "リモート JOG"
+  ],
+  "reel_count": 23,
+  "variant_row_count": 35,
+  "columns": [
+    "アイテム",
+    "標準自重（ｇ）",
+    "巻き取り長さ（cm/ハンドル1回転）",
+    "ギア比",
+    "標準巻糸量ナイロン（号ｰm）",
+    "標準巻糸量PE（号ｰm）",
+    "ハンドルアーム長（mm）",
+    "ベアリング（ボール/ローラー）",
+    "最大ドラグ力（kg）",
+    "最大巻上力（kg）",
+    "常用巻上速度1kg負荷時（m/分）",
+    "JAFS基準巻上力（kg）",
+    "JAFS基準巻上速度（m/分）",
+    "付属品",
+    "ハンドルノブ仕様",
+    "メーカー希望本体価格（円）",
+    "JAN",
+    "ハンドルノブ交換サイズ",
+    "バッテリー容量(Ah)"
+  ],
+  "products": [
+    {
+      "product_name": "シーボーグ G1800M-RJ",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ交換サイズ",
+        "バッテリー容量(Ah)"
+      ],
+      "optional_absent": []
+    },
+    {
+      "product_name": "シーボーグ G1200M",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": []
+    },
+    {
+      "product_name": "シーボーグ G800MJ",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ交換サイズ",
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": []
+    },
+    {
+      "product_name": "シーボーグ 500MJ-AT",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "シーボーグ 600MJ",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "シーボーグ 500MJ",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "シーボーグ G400J",
+      "variant_count": 2,
+      "missing_required": [
+        "ハンドルノブ交換サイズ",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "シーパワー 1200",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "シーボーグ 500J",
+      "variant_count": 1,
+      "missing_required": [
+        "付属品"
+      ],
+      "optional_absent": []
+    },
+    {
+      "product_name": "シーパワー 800",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "シーボーグ G300J",
+      "variant_count": 2,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "シーボーグ G200J",
+      "variant_count": 2,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "シーボーグ 300J",
+      "variant_count": 2,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": []
+    },
+    {
+      "product_name": "シーボーグ 100J",
+      "variant_count": 2,
+      "missing_required": [
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": []
+    },
+    {
+      "product_name": "シーボーグ 400J/JL",
+      "variant_count": 2,
+      "missing_required": [
+        "ハンドルノブ交換サイズ",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": []
+    },
+    {
+      "product_name": "シーボーグ 200J",
+      "variant_count": 4,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "レオブリッツ 400J",
+      "variant_count": 2,
+      "missing_required": [
+        "ハンドルノブ交換サイズ",
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": []
+    },
+    {
+      "product_name": "レオブリッツ 300J",
+      "variant_count": 2,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "レオブリッツ 200J",
+      "variant_count": 2,
+      "missing_required": [
+        "ハンドルノブ交換サイズ",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": []
+    },
+    {
+      "product_name": "レオブリッツ 500JP",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "レオブリッツ S500JP",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    },
+    {
+      "product_name": "レオブリッツ S400",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）",
+        "標準巻糸量ナイロン（号ｰm）"
+      ]
+    },
+    {
+      "product_name": "レオブリッツ S500",
+      "variant_count": 1,
+      "missing_required": [
+        "ハンドルノブ仕様",
+        "バッテリー容量(Ah)",
+        "付属品"
+      ],
+      "optional_absent": [
+        "ハンドルアーム長（mm）"
+      ]
+    }
+  ]
+}
