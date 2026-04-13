@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "top-band-ui",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "7777", "--directory", "ui"],
+      "port": 7777
+    }
+  ]
+}
