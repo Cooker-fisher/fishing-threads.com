@@ -1,0 +1,25 @@
+{
+  "_comment": "トップUI用 最小データ定義。bands / brand_bands / target_ranges の3セクション。target_ranges は仮レンジ（data-driven 推定に差し替え予定）。",
+  "_version": "0.1.0",
+  "_source": "runs/tmp/standard-band-summary.json をもとに手動で仮設定",
+
+  "bands": [100, 200, 300, 400, 500, 600],
+
+  "brand_bands": {
+    "daiwa":   [100, 200, 300, 400, 500, 600],
+    "shimano": [200, 300, 400, 600]
+  },
+
+  "target_ranges": [
+    { "target": "マダイ",    "start_band": 100, "end_band": 600 },
+    { "target": "アジ",      "start_band": 100, "end_band": 600 },
+    { "target": "タチウオ",  "start_band": 100, "end_band": 600 },
+    { "target": "イサキ",    "start_band": 100, "end_band": 400 },
+    { "target": "イカ",      "start_band": 100, "end_band": 600 },
+    { "target": "ブリ",      "start_band": 200, "end_band": 600 },
+    { "target": "ヒラマサ",  "start_band": 200, "end_band": 600 },
+    { "target": "カンパチ",  "start_band": 100, "end_band": 600 },
+    { "target": "ムツ",      "start_band": 200, "end_band": 600 },
+    { "target": "キンメダイ", "start_band": 400, "end_band": 600 }
+  ]
+}
