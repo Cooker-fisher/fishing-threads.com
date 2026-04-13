@@ -1,0 +1,146 @@
+{
+  "_comment": "自動生成・生データに近い確認用。手動ファイル target-band-ranges.json は別途維持。",
+  "_version": "generated",
+  "_source": "runs\\tmp\\standard-band-summary.json",
+  "bands": [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600
+  ],
+  "brand_bands": {
+    "daiwa": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600
+    ],
+    "shimano": [
+      200,
+      300,
+      400,
+      600
+    ]
+  },
+  "target_ranges": [
+    {
+      "target": "アジ",
+      "start_band": 100,
+      "end_band": 600
+    },
+    {
+      "target": "イカ類",
+      "start_band": 100,
+      "end_band": 600
+    },
+    {
+      "target": "イサキ",
+      "start_band": 100,
+      "end_band": 600
+    },
+    {
+      "target": "イワシ",
+      "start_band": 300,
+      "end_band": 500
+    },
+    {
+      "target": "オニカサゴ",
+      "start_band": 500,
+      "end_band": 500
+    },
+    {
+      "target": "カサゴ類",
+      "start_band": 500,
+      "end_band": 500
+    },
+    {
+      "target": "カツオ",
+      "start_band": 500,
+      "end_band": 500
+    },
+    {
+      "target": "カレイ",
+      "start_band": 200,
+      "end_band": 200
+    },
+    {
+      "target": "カンパチ",
+      "start_band": 100,
+      "end_band": 600
+    },
+    {
+      "target": "キンメダイ",
+      "start_band": 400,
+      "end_band": 500
+    },
+    {
+      "target": "サケ・マス類",
+      "start_band": 300,
+      "end_band": 500
+    },
+    {
+      "target": "サバ",
+      "start_band": 300,
+      "end_band": 600
+    },
+    {
+      "target": "ゾイ類",
+      "start_band": 300,
+      "end_band": 500
+    },
+    {
+      "target": "タチウオ",
+      "start_band": 100,
+      "end_band": 600
+    },
+    {
+      "target": "タラ",
+      "start_band": 300,
+      "end_band": 500
+    },
+    {
+      "target": "ハタ類",
+      "start_band": 100,
+      "end_band": 600
+    },
+    {
+      "target": "ヒラマサ",
+      "start_band": 200,
+      "end_band": 500
+    },
+    {
+      "target": "ヒラメ",
+      "start_band": 100,
+      "end_band": 600
+    },
+    {
+      "target": "ブリ類",
+      "start_band": 200,
+      "end_band": 500
+    },
+    {
+      "target": "マグロ類",
+      "start_band": 200,
+      "end_band": 600
+    },
+    {
+      "target": "マダイ",
+      "start_band": 100,
+      "end_band": 600
+    },
+    {
+      "target": "ムツ類",
+      "start_band": 200,
+      "end_band": 600
+    },
+    {
+      "target": "メダイ",
+      "start_band": 400,
+      "end_band": 500
+    }
+  ]
+}
