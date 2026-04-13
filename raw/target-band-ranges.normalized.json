@@ -1,7 +1,7 @@
 {
   "_comment": "正規化済み。UI/比較用途。魚種名を FISH_NAME_MAP で統一。",
   "_version": "normalized",
-  "_source": "runs\\tmp\\standard-band-summary.json",
+  "_source": "C:\\Users\\newsh\\Desktop\\Projects\\fishing-threads\\runs\\tmp\\standard-band-summary.json",
   "bands": [
     100,
     200,
@@ -26,16 +26,36 @@
       600
     ]
   },
+  "brand_band_labels": {
+    "daiwa": {
+      "100": "100",
+      "200": "200",
+      "300": "300",
+      "400": "400",
+      "500": "500",
+      "600": "600"
+    },
+    "shimano": {
+      "200": "200 / 201",
+      "300": "300 / 301",
+      "600": "600 / 601",
+      "1000": "",
+      "2000": "",
+      "3000": "",
+      "4000": "",
+      "6000": ""
+    }
+  },
   "target_ranges": [
     {
       "target": "アジ",
       "start_band": 100,
-      "end_band": 600
+      "end_band": 3000
     },
     {
       "target": "イカ",
       "start_band": 100,
-      "end_band": 600
+      "end_band": 4000
     },
     {
       "target": "イサキ",
@@ -44,8 +64,8 @@
     },
     {
       "target": "イワシ",
-      "start_band": 300,
-      "end_band": 500
+      "start_band": 500,
+      "end_band": 3000
     },
     {
       "target": "オニカサゴ",
@@ -69,13 +89,13 @@
     },
     {
       "target": "カンパチ",
-      "start_band": 100,
-      "end_band": 600
+      "start_band": 300,
+      "end_band": 6000
     },
     {
       "target": "キンメダイ",
-      "start_band": 400,
-      "end_band": 500
+      "start_band": 500,
+      "end_band": 4000
     },
     {
       "target": "サケ・マス",
@@ -84,8 +104,8 @@
     },
     {
       "target": "サバ",
-      "start_band": 300,
-      "end_band": 600
+      "start_band": 400,
+      "end_band": 3000
     },
     {
       "target": "ゾイ",
@@ -95,7 +115,7 @@
     {
       "target": "タチウオ",
       "start_band": 100,
-      "end_band": 600
+      "end_band": 3000
     },
     {
       "target": "タラ",
@@ -104,13 +124,13 @@
     },
     {
       "target": "ハタ",
-      "start_band": 100,
-      "end_band": 600
+      "start_band": 200,
+      "end_band": 6000
     },
     {
       "target": "ヒラマサ",
-      "start_band": 200,
-      "end_band": 500
+      "start_band": 300,
+      "end_band": 4000
     },
     {
       "target": "ヒラメ",
@@ -119,28 +139,28 @@
     },
     {
       "target": "ブリ",
-      "start_band": 200,
-      "end_band": 500
+      "start_band": 300,
+      "end_band": 4000
     },
     {
       "target": "マグロ",
-      "start_band": 200,
-      "end_band": 600
+      "start_band": 300,
+      "end_band": 6000
     },
     {
       "target": "マダイ",
       "start_band": 100,
-      "end_band": 600
+      "end_band": 3000
     },
     {
       "target": "ムツ",
-      "start_band": 200,
-      "end_band": 600
+      "start_band": 300,
+      "end_band": 4000
     },
     {
       "target": "メダイ",
-      "start_band": 400,
-      "end_band": 500
+      "start_band": 500,
+      "end_band": 4000
     }
   ]
 }

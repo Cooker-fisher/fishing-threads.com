@@ -2,12 +2,10 @@
 """
 top-band.html 生成スクリプト
 
-入力: raw/target-band-ranges.normalized.json
+入力:
+  raw/target-band-ranges.normalized.json  (bands / brand_bands)
+  ../../runs/tmp/standard-band-summary.json (魚種×ブランド別レンジ計算用)
 出力: ui/top-band.html（自己完結 HTML）
-
-- JSON データをインライン埋め込みして生成
-- ブラウザで直接開ける（サーバー不要）
-- 帯だけ描画。文字レンジ表記なし。
 """
 
 from __future__ import annotations
@@ -15,9 +13,85 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-_BASE_DIR  = Path(__file__).resolve().parent.parent
-_DATA_PATH = _BASE_DIR / "raw" / "target-band-ranges.normalized.json"
-_OUT_PATH  = _BASE_DIR / "ui" / "top-band.html"
+_BASE_DIR     = Path(__file__).resolve().parent.parent
+_DATA_PATH    = _BASE_DIR / "raw" / "target-band-ranges.normalized.json"
+_SUMMARY_PATH = _BASE_DIR.parent / "runs" / "tmp" / "standard-band-summary.json"
+_OUT_PATH     = _BASE_DIR / "ui" / "top-band.html"
+
+FISH_NAME_MAP: dict[str, str] = {
+    "ブリ類":       "ブリ",
+    "イカ類":       "イカ",
+    "ムツ類":       "ムツ",
+    "マグロ類":     "マグロ",
+    "ハタ類":       "ハタ",
+    "カサゴ類":     "カサゴ",
+    "ゾイ類":       "ゾイ",
+    "サケ・マス類": "サケ・マス",
+}
+
+
+def build_fish_brand_ranges(summary: list[dict]) -> dict:
+    """
+    standard-band-summary から魚種×ブランド×系統別の start_band / end_band を計算する。
+
+    DAIWA は3桁のみ（100〜600）。
+    SHIMANO は3桁系（200〜600）と4桁系（1000〜6000）を分離。
+
+    返り値:
+    {
+      "ブリ": {
+        "daiwa":          {"start": 300, "end": 500, "axis": "3digit"},
+        "shimano_3digit": {"start": 200, "end": 400, "axis": "3digit"},
+        "shimano_4digit": {"start": 2000,"end": 4000,"axis": "4digit"},
+      }, ...
+    }
+    """
+    SHIMANO_3DIGIT = {200, 300, 400, 500, 600}
+    SHIMANO_4DIGIT = {1000, 2000, 3000, 4000, 6000}
+
+    fish_maker_bands: dict[str, dict[str, list[int]]] = {}
+
+    for entry in summary:
+        maker    = entry.get("brand", "")
+        band_val = entry.get("band")
+        if not band_val:
+            continue
+        band = int(band_val)
+
+        # キーを決定
+        if maker == "daiwa":
+            key = "daiwa"
+        elif maker == "shimano" and band in SHIMANO_3DIGIT:
+            key = "shimano_3digit"
+        elif maker == "shimano" and band in SHIMANO_4DIGIT:
+            key = "shimano_4digit"
+        else:
+            continue
+
+        for raw_fish in entry.get("fish_targets") or []:
+            if not raw_fish:
+                continue
+            fish = FISH_NAME_MAP.get(raw_fish, raw_fish)
+            fish_maker_bands.setdefault(fish, {}).setdefault(key, []).append(band)
+
+    AXIS = {
+        "daiwa":          "3digit",
+        "shimano_3digit": "3digit",
+        "shimano_4digit": "4digit",
+    }
+
+    result: dict[str, dict] = {}
+    for fish, key_map in fish_maker_bands.items():
+        result[fish] = {}
+        for key, bands in key_map.items():
+            result[fish][key] = {
+                "start": min(bands),
+                "end":   max(bands),
+                "axis":  AXIS[key],
+            }
+
+    return result
+
 
 _TEMPLATE = """\
 <!DOCTYPE html>
@@ -27,71 +101,139 @@ _TEMPLATE = """\
 <title>電動リール 番手帯チャート</title>
 <style>
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ font-family: sans-serif; font-size: 13px; padding: 24px; background: #f8f8f8; color: #333; }}
-h2 {{ font-size: 14px; font-weight: 600; margin-bottom: 16px; color: #444; }}
-
-.chart {{ max-width: 680px; }}
-
-/* 各行: label 1列 + band 6列 */
-.row {{
-  display: grid;
-  grid-template-columns: 96px repeat({band_count}, 1fr);
-  column-gap: 3px;
-  margin-bottom: 3px;
-  align-items: center;
-}}
-
-/* ヘッダー */
-.hdr-label {{ /* empty */ }}
-.hdr-cell {{
-  text-align: center;
-  font-size: 11px;
-  color: #999;
-  padding-bottom: 4px;
-}}
+body {{ font-family: sans-serif; font-size: 13px; padding: 24px; background: #f5f7fa; color: #333; }}
+h2 {{ font-size: 14px; font-weight: 600; margin-bottom: 20px; color: #444; }}
+.chart {{ max-width: 740px; }}
 
 /* ブランド行 */
+.brand-row {{
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}}
 .brand-label {{
+  width: 110px;
+  flex-shrink: 0;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-align: right;
-  padding-right: 8px;
+  padding-right: 10px;
   color: #555;
-  letter-spacing: 0.03em;
+  line-height: 1.4;
 }}
-.band-cell {{
-  height: 20px;
-  border-radius: 3px;
-  background: #e8e8e8;
+.track-wrap {{
+  position: relative;
+  flex: 1;
+  height: 28px;
 }}
-.band-daiwa   {{ background: #4a90d9; }}
-.band-shimano {{ background: #e87040; }}
+.track-bg {{
+  position: absolute;
+  inset: 3px 0;
+  border-radius: 5px;
+  background: #dde2ea;
+}}
+.seg-fill {{
+  position: absolute;
+  top: 3px;
+  height: calc(100% - 6px);
+}}
+.seg-daiwa          {{ background: #4a90d9; }}
+.seg-shimano-3digit {{ background: #e07840; }}
+.seg-shimano-4digit {{ background: #9b59b6; }}
+.tick-label {{
+  position: absolute;
+  top: 0; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  pointer-events: none;
+  white-space: nowrap;
+}}
 
-/* 区切り */
-.gap {{ height: 10px; }}
+.section-gap {{ height: 20px; }}
 
 /* 魚種行 */
+.fish-row {{
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 5px;
+}}
 .fish-label {{
+  width: 110px;
+  flex-shrink: 0;
   font-size: 12px;
   text-align: right;
-  padding-right: 8px;
+  padding-right: 10px;
   color: #444;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}}
+.fish-tracks {{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0;
+}}
+.fish-track {{
+  position: relative;
+  height: 13px;
 }}
 .fish-bar {{
-  height: 18px;
+  position: absolute;
+  top: 0; height: 100%;
   border-radius: 3px;
-  background: #5a9e6f;
+  opacity: 0.85;
 }}
+.fish-bar-daiwa          {{ background: #4a90d9; }}
+.fish-bar-shimano-3digit {{ background: #e07840; }}
+.fish-bar-shimano-4digit {{ background: #9b59b6; }}
 </style>
 </head>
 <body>
 <h2>電動リール 番手帯チャート</h2>
 <div class="chart" id="chart"></div>
 <script>
-const DATA = {data_json};
+const RANGES = {ranges_json};
 
-const bands = DATA.bands;
-const N = bands.length;
+// ===== 軸定義 =====
+// 3桁軸: DAIWA / SHIMANO 3桁
+const TICKS_3 = [100, 200, 300, 400, 500, 600];
+// 4桁軸: SHIMANO 4桁
+const TICKS_4 = [1000, 2000, 3000, 4000, 6000];
+
+function makeAxis(ticks) {{
+  const n = ticks.length;
+  const w = 100 / n;
+  return {{
+    ticks,
+    pctLeft:  b => ticks.indexOf(b) * w,
+    pctWidth: (s, e) => (ticks.indexOf(e) - ticks.indexOf(s) + 1) * w,
+    has: b => ticks.includes(b),
+    tickW: w,
+  }};
+}}
+const AXIS_3 = makeAxis(TICKS_3);
+const AXIS_4 = makeAxis(TICKS_4);
+
+// ===== ブランド行定義 =====
+const BRAND_ROWS = [
+  {{ label: 'DAIWA',           cls: 'seg-daiwa',          axis: AXIS_3, active: [100,200,300,400,500,600] }},
+  {{ label: 'SHIMANO\\n3桁',    cls: 'seg-shimano-3digit', axis: AXIS_3, active: [200,300,600] }},
+  {{ label: 'SHIMANO\\n4桁',    cls: 'seg-shimano-4digit', axis: AXIS_4, active: [1000,2000,3000,4000,6000] }},
+];
+
+// ===== 魚種行: key→軸・色のマッピング =====
+const FISH_TRACK_DEFS = [
+  {{ key: 'daiwa',          cls: 'fish-bar-daiwa',          axis: AXIS_3 }},
+  {{ key: 'shimano_3digit', cls: 'fish-bar-shimano-3digit', axis: AXIS_3 }},
+  {{ key: 'shimano_4digit', cls: 'fish-bar-shimano-4digit', axis: AXIS_4 }},
+];
 
 function el(tag, cls) {{
   const e = document.createElement(tag);
@@ -101,51 +243,87 @@ function el(tag, cls) {{
 
 const chart = document.getElementById('chart');
 
-// ヘッダー行
-const hRow = el('div', 'row');
-hRow.appendChild(el('div', 'hdr-label'));
-for (const b of bands) {{
-  const c = el('div', 'hdr-cell');
-  c.textContent = b;
-  hRow.appendChild(c);
-}}
-chart.appendChild(hRow);
-
-// ブランド行（brand_bands）
-const brandClass = {{ daiwa: 'band-daiwa', shimano: 'band-shimano' }};
-for (const [maker, makerBands] of Object.entries(DATA.brand_bands)) {{
-  const row = el('div', 'row');
+// ===== ブランド行描画 =====
+for (const brand of BRAND_ROWS) {{
+  const row = el('div', 'brand-row');
   const lbl = el('div', 'brand-label');
-  lbl.textContent = maker.toUpperCase();
+  lbl.innerHTML = brand.label.replace('\\n', '<br>');
   row.appendChild(lbl);
-  for (const b of bands) {{
-    const active = makerBands.includes(b);
-    const cls = active ? `band-cell ${{brandClass[maker] || ''}}` : 'band-cell';
-    row.appendChild(el('div', cls));
+
+  const wrap = el('div', 'track-wrap');
+  wrap.appendChild(el('div', 'track-bg'));
+
+  const {{ ticks, pctLeft, pctWidth, tickW }} = brand.axis;
+  const activeSet = new Set(brand.active);
+
+  let segStart = null;
+  for (let i = 0; i <= ticks.length; i++) {{
+    const b = ticks[i];
+    const on = b !== undefined && activeSet.has(b);
+    if (on && segStart === null) segStart = b;
+    if (!on && segStart !== null) {{
+      const endBand = ticks[i - 1];
+      const left  = pctLeft(segStart);
+      const width = pctWidth(segStart, endBand);
+      const fill = el('div', `seg-fill ${{brand.cls}}`);
+      fill.style.left = left + '%';
+      fill.style.width = width + '%';
+      const rL = left < 0.1 ? '5px' : '0';
+      const rR = left + width > 99.9 ? '5px' : '0';
+      fill.style.borderRadius = `${{rL}} ${{rR}} ${{rR}} ${{rL}}`;
+      wrap.appendChild(fill);
+
+      for (let j = ticks.indexOf(segStart); j <= ticks.indexOf(endBand); j++) {{
+        const t = el('div', 'tick-label');
+        t.style.left  = (j * tickW) + '%';
+        t.style.width = tickW + '%';
+        t.textContent = ticks[j];
+        wrap.appendChild(t);
+      }}
+      segStart = null;
+    }}
   }}
+
+  row.appendChild(wrap);
   chart.appendChild(row);
 }}
 
-// 区切り
-chart.appendChild(el('div', 'gap'));
+chart.appendChild(el('div', 'section-gap'));
 
-// 魚種行（target_ranges）
-for (const t of DATA.target_ranges) {{
-  const startIdx = bands.indexOf(t.start_band);
-  const endIdx   = bands.indexOf(t.end_band);
-  if (startIdx === -1 || endIdx === -1) continue;
+// ===== 魚種行描画 =====
+// 全魚種を RANGES のキーから取得（重複なし）
+const allFish = [...new Set(Object.keys(RANGES))].sort((a, b) => a.localeCompare(b, 'ja'));
 
-  const row = el('div', 'row');
+for (const fish of allFish) {{
+  const fishData = RANGES[fish] || {{}};
+
+  // 表示するトラックが1本もなければスキップ
+  const hasSomething = FISH_TRACK_DEFS.some(d => {{
+    const r = fishData[d.key];
+    return r && d.axis.has(r.start) && d.axis.has(r.end);
+  }});
+  if (!hasSomething) continue;
+
+  const row = el('div', 'fish-row');
   const lbl = el('div', 'fish-label');
-  lbl.textContent = t.target;
+  lbl.textContent = fish;
   row.appendChild(lbl);
 
-  // バー: grid-column で帯位置を直接指定
-  // label が column 1、bands が column 2〜N+1
-  const bar = el('div', 'fish-bar');
-  bar.style.gridColumn = `${{startIdx + 2}} / ${{endIdx + 3}}`;
-  row.appendChild(bar);
+  const tracks = el('div', 'fish-tracks');
 
+  for (const def of FISH_TRACK_DEFS) {{
+    const r = fishData[def.key];
+    const track = el('div', 'fish-track');
+    if (r && def.axis.has(r.start) && def.axis.has(r.end)) {{
+      const bar = el('div', `fish-bar ${{def.cls}}`);
+      bar.style.left  = def.axis.pctLeft(r.start) + '%';
+      bar.style.width = def.axis.pctWidth(r.start, r.end) + '%';
+      track.appendChild(bar);
+    }}
+    tracks.appendChild(track);
+  }}
+
+  row.appendChild(tracks);
   chart.appendChild(row);
 }}
 </script>
@@ -155,11 +333,12 @@ for (const t of DATA.target_ranges) {{
 
 
 def main() -> None:
-    data = json.loads(_DATA_PATH.read_text(encoding="utf-8"))
-    data_json = json.dumps(data, ensure_ascii=False)
-    band_count = len(data["bands"])
+    summary = json.loads(_SUMMARY_PATH.read_text(encoding="utf-8"))
+    fish_brand_ranges = build_fish_brand_ranges(summary)
 
-    html = _TEMPLATE.format(data_json=data_json, band_count=band_count)
+    html = _TEMPLATE.format(
+        ranges_json = json.dumps(fish_brand_ranges, ensure_ascii=False),
+    )
 
     _OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     _OUT_PATH.write_text(html, encoding="utf-8")
