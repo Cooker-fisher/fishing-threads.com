@@ -18,6 +18,12 @@ scripts/run_target_band_ranges_generator.py
 
 `runs/tmp/standard-band-summary.json`（`build_standard_band_summary.py` の出力）
 
+> **注意: `runs/` は repo 外のディレクトリ**
+> `runs/` はクロール・中間集計の一時出力置き場であり、repo（`repo/`）には含まない。
+> このスクリプトを実行する前に `crawler/build_standard_band_summary.py` を先に実行し、
+> `<project-root>/runs/tmp/standard-band-summary.json` が存在する状態にすること。
+> パスが異なる場合は `--input` オプションで指定できる。
+
 ### 出力
 
 両ファイルとも `bands` / `brand_bands` は手動 JSON から引き継ぎ、`target_ranges` のみ自動導出。
@@ -65,8 +71,21 @@ scripts/run_target_band_ranges_generator.py
 
 ## 再生成
 
+**前提:** `runs/tmp/standard-band-summary.json` が repo 外に存在すること。
+まだない場合は先に集計スクリプトを実行する:
+
+```bash
+python crawler/build_standard_band_summary.py
+```
+
+その後、generator を実行:
+
 ```bash
 python scripts/run_target_band_ranges_generator.py
 ```
 
-`standard-band-summary.json` を更新した後に再実行すれば `generated.json` が上書きされる。
+`runs/` が別の場所にある場合は `--input` で指定:
+
+```bash
+python scripts/run_target_band_ranges_generator.py --input /path/to/standard-band-summary.json
+```

@@ -2,8 +2,18 @@
 """
 target-band-ranges 生成スクリプト
 
-入力: runs/tmp/standard-band-summary.json
-出力:
+【前提】
+  このスクリプトは repo 外の runs/ を読む。
+  runs/ はクロール・中間集計の一時出力置き場であり、repo に含まない。
+
+  デフォルト入力パス:
+    <repo>/../runs/tmp/standard-band-summary.json
+    （= fishing-threads/runs/tmp/standard-band-summary.json）
+
+  パスを変えたい場合は --input オプションで絶対パスを指定できる:
+    python scripts/run_target_band_ranges_generator.py --input /path/to/standard-band-summary.json
+
+出力（repo 内）:
   raw/target-band-ranges.generated.json  生データに近い確認用
   raw/target-band-ranges.normalized.json UI/比較接続用（魚種名正規化済み）
 
@@ -14,24 +24,30 @@ target-band-ranges 生成スクリプト
 
 from __future__ import annotations
 
+import argparse
 import json
+import sys
 from pathlib import Path
 
-_BASE_DIR      = Path(__file__).resolve().parent.parent
-_SUMMARY_PATH  = _BASE_DIR.parent / "runs" / "tmp" / "standard-band-summary.json"
-_MANUAL_PATH   = _BASE_DIR / "raw" / "target-band-ranges.json"
-_OUT_GENERATED = _BASE_DIR / "raw" / "target-band-ranges.generated.json"
+_BASE_DIR = Path(__file__).resolve().parent.parent
+
+# runs/ は repo 外 (_BASE_DIR の親) に置く設計。
+# クロール一時出力を repo に混ぜないための境界。
+_DEFAULT_SUMMARY_PATH = _BASE_DIR.parent / "runs" / "tmp" / "standard-band-summary.json"
+
+_MANUAL_PATH    = _BASE_DIR / "raw" / "target-band-ranges.json"
+_OUT_GENERATED  = _BASE_DIR / "raw" / "target-band-ranges.generated.json"
 _OUT_NORMALIZED = _BASE_DIR / "raw" / "target-band-ranges.normalized.json"
 
 # 魚種名正規化辞書: 生データの名称 → UI/比較用表示名
 FISH_NAME_MAP: dict[str, str] = {
-    "ブリ類":    "ブリ",
-    "イカ類":    "イカ",
-    "ムツ類":    "ムツ",
-    "マグロ類":  "マグロ",
-    "ハタ類":    "ハタ",
-    "カサゴ類":  "カサゴ",
-    "ゾイ類":    "ゾイ",
+    "ブリ類":       "ブリ",
+    "イカ類":       "イカ",
+    "ムツ類":       "ムツ",
+    "マグロ類":     "マグロ",
+    "ハタ類":       "ハタ",
+    "カサゴ類":     "カサゴ",
+    "ゾイ類":       "ゾイ",
     "サケ・マス類": "サケ・マス",
 }
 
@@ -98,14 +114,45 @@ def normalize_target_ranges(raw_ranges: list[dict]) -> list[dict]:
 
 
 def main() -> None:
-    summary = json.loads(_SUMMARY_PATH.read_text(encoding="utf-8"))
+    parser = argparse.ArgumentParser(
+        description="standard-band-summary.json から target-band-ranges を生成する",
+    )
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=_DEFAULT_SUMMARY_PATH,
+        help=(
+            "standard-band-summary.json のパス（デフォルト: repo外 runs/tmp/）。"
+            " runs/ が別の場所にある場合に使用。"
+        ),
+    )
+    args = parser.parse_args()
+    summary_path: Path = args.input
+
+    if not summary_path.exists():
+        print(
+            f"[ERROR] 入力ファイルが見つかりません: {summary_path}\n"
+            f"\n"
+            f"  runs/ は repo 外の一時出力ディレクトリです。\n"
+            f"  build_standard_band_summary.py を先に実行してください:\n"
+            f"\n"
+            f"    python crawler/build_standard_band_summary.py\n"
+            f"\n"
+            f"  別のパスに出力した場合は --input で指定できます:\n"
+            f"\n"
+            f"    python scripts/run_target_band_ranges_generator.py --input /path/to/standard-band-summary.json",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
     manual  = json.loads(_MANUAL_PATH.read_text(encoding="utf-8"))
 
     common = {
         "bands":       manual["bands"],
         "brand_bands": manual["brand_bands"],
     }
-    source_str = str(_SUMMARY_PATH.relative_to(_BASE_DIR.parent))
+    source_str = str(summary_path)
 
     # --- generated (生に近い確認用)
     generated_ranges = derive_target_ranges(summary)
