@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -50,6 +51,61 @@ FISH_NAME_MAP: dict[str, str] = {
     "ゾイ類":       "ゾイ",
     "サケ・マス類": "サケ・マス",
 }
+
+
+def build_brand_band_labels(summary: list[dict]) -> dict[str, dict[str, str]]:
+    """
+    standard-band-summary の products リストから帯ごとの実番手ラベルを導出する。
+
+    例:
+      shimano[200] = "200 / 2000"  (ForceMaster 200 と ForceMaster 2000 が混在)
+      shimano[100] = "1000"        (1000番手のみ)
+      daiwa[100]   = "100"
+    """
+    # band x maker → 実番手の set
+    result: dict[str, dict[str, set[int]]] = {}
+
+    for entry in summary:
+        maker = entry.get("brand", "")
+        band_val = entry.get("band")
+        if not band_val:
+            continue
+        band = int(band_val)
+        products = entry.get("products") or []
+
+        nums: set[int] = set()
+        for name in products:
+            for n_str in re.findall(r"\d+", name):
+                n = int(n_str)
+                if _maps_to_band(n) == band:
+                    nums.add(n)
+
+        result.setdefault(maker, {})[str(band)] = nums
+
+    # set[int] → 表示文字列（昇順 / で結合）
+    labels: dict[str, dict[str, str]] = {}
+    for maker, band_map in result.items():
+        labels[maker] = {}
+        for band_str, nums in band_map.items():
+            labels[maker][band_str] = " / ".join(str(n) for n in sorted(nums))
+
+    return labels
+
+
+def _maps_to_band(n: int) -> int | None:
+    """整数 n が何番手帯に対応するかを返す（detect_band と同じロジック）。"""
+    if 100 <= n <= 199: return 100
+    if 200 <= n <= 299: return 200
+    if 300 <= n <= 399: return 300
+    if 400 <= n <= 499: return 400
+    if 500 <= n <= 599: return 500
+    if 600 <= n <= 699: return 600
+    if n == 1000: return 100
+    if n == 2000: return 200
+    if n == 3000: return 300
+    if n == 4000: return 400
+    if n == 6000: return 600
+    return None
 
 
 def derive_target_ranges(summary: list[dict]) -> list[dict]:
@@ -154,6 +210,8 @@ def main() -> None:
     }
     source_str = str(summary_path)
 
+    brand_band_labels = build_brand_band_labels(summary)
+
     # --- generated (生に近い確認用)
     generated_ranges = derive_target_ranges(summary)
     _OUT_GENERATED.write_text(
@@ -175,6 +233,7 @@ def main() -> None:
             "_version": "normalized",
             "_source": source_str,
             **common,
+            "brand_band_labels": brand_band_labels,
             "target_ranges": normalized_ranges,
         }, ensure_ascii=False, indent=2),
         encoding="utf-8",
